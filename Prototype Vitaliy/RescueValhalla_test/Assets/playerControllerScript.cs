@@ -17,15 +17,17 @@ public class playerControllerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKey(KeyCode.RightArrow)){
-			this.transform.position = new Vector3(this.transform.position.x + 0.1f,this.transform.position.y,0f);
-			this.transform.localScale = new Vector3 (-0.6f, this.transform.localScale.y, this.transform.localScale.z);
-		}else if(Input.GetKey(KeyCode.LeftArrow)){
-			this.transform.position = new Vector3(this.transform.position.x - 0.1f,this.transform.position.y,0f);
-			this.transform.localScale = new Vector3 (0.6f, this.transform.localScale.y, this.transform.localScale.z);
+			transform.position = new Vector3(transform.position.x + 0.1f,transform.position.y,0f);
+			transform.localScale = new Vector3 (-0.6f, transform.localScale.y, transform.localScale.z);
+           // transform.localRotation = new Quaternion()
+        }
+        else if(Input.GetKey(KeyCode.LeftArrow)){
+			transform.position = new Vector3(transform.position.x - 0.1f,transform.position.y,0f);
+			transform.localScale = new Vector3 (0.6f, transform.localScale.y, transform.localScale.z);
 		}
 
 		if(Input.GetKeyDown(KeyCode.UpArrow)){
-			this.GetComponent<Rigidbody2D> ().AddForce(Vector2.up * 300f);
+			GetComponent<Rigidbody2D> ().AddForce(Vector2.up * 300f);
 		}
 
 		//Grabbing and Throwing
@@ -33,8 +35,8 @@ public class playerControllerScript : MonoBehaviour {
 			if (!grab) {
 				print ("grab");
 				Physics2D.queriesStartInColliders = false;
-				hit = Physics2D.Raycast (this.transform.position, Vector2.left * this.transform.localScale.x, distance);
-				print (this.transform.localScale.x);
+				hit = Physics2D.Raycast (transform.position, Vector2.left * transform.localScale.x, distance);
+				print (transform.localScale.x);
 
 				if (hit.collider != null && (hit.collider.gameObject.CompareTag("WoodenObject") || hit.collider.gameObject.CompareTag("PhysicsObject")|| hit.collider.gameObject.CompareTag("Dwane"))) {
 					print ("found");
@@ -45,8 +47,8 @@ public class playerControllerScript : MonoBehaviour {
 				print ("throw");
 				grab = false;
 				if (hit.collider.gameObject.GetComponent<Rigidbody2D> () != null) {
-					hit.collider.gameObject.GetComponent<Rigidbody2D> ().velocity = new Vector2 (this.transform.localScale.x*-2, 1) * throwforce;
-					//hit.collider.gameObject.GetComponent<Rigidbody2D> ().AddForce (new Vector2 (this.transform.localScale.x*-2, 1) * throwforce, ForceMode2D.Impulse);
+					hit.collider.gameObject.GetComponent<Rigidbody2D> ().velocity = new Vector2 (transform.localScale.x*-2, 1) * throwforce;
+					//hit.collider.gameObject.GetComponent<Rigidbody2D> ().AddForce (new Vector2 (transform.localScale.x*-2, 1) * throwforce, ForceMode2D.Impulse);
 				}
 			}
 		}
@@ -59,6 +61,6 @@ public class playerControllerScript : MonoBehaviour {
 
 	void OnDrawGizmos(){
 		Gizmos.color = Color.white;
-		Gizmos.DrawLine (this.transform.position, this.transform.position + Vector3.left *distance);
+		Gizmos.DrawLine (transform.position, transform.position + Vector3.left *distance);
 	}
 }

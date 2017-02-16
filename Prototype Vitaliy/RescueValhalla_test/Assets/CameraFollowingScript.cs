@@ -19,11 +19,11 @@ public class CameraFollowingScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		currentPosition = this.transform.position;
+		currentPosition = transform.position;
 		targetPosition_X = target.transform.position.x + cameraOffset;
 		targetPosition_Y = target.transform.position.y + cameraOffset;
-		newPosition = new Vector3(targetPosition_X, targetPosition_Y, this.transform.position.z);
+		newPosition = new Vector3(targetPosition_X, targetPosition_Y, transform.position.z);
 
-		this.transform.position = Vector3.Lerp(currentPosition, newPosition, 1);
+		transform.position = Vector3.Lerp(currentPosition, newPosition, 1);
 	}
 }
