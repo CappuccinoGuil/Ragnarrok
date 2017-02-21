@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class DwaneController: MonoBehaviour {
 
-    [SerializeField] float m_moveSpeed = 3;
+    [SerializeField] float m_moveSpeed = 30.0f;
     [SerializeField] float m_spinSpeed = 30.0f;
     [SerializeField] float m_effectRadius = 2;
     [SerializeField] float m_pullForce = 2;
@@ -48,7 +48,7 @@ public class DwaneController: MonoBehaviour {
 
     void MoveRock()
     {
-        m_rb.AddTorque( -m_spinSpeed * player.GetAxis("LHorizontal"));
+        m_rb.AddForce(Vector2.right * m_moveSpeed  * player.GetAxis("LHorizontal"), ForceMode2D.Force);
     }
     void PullEffect()
     {

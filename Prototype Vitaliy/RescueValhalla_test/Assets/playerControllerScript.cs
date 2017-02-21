@@ -51,7 +51,7 @@ public class playerControllerScript : MonoBehaviour {
 			if (!grab) 
             {
 				print ("grab");
-				hit = Physics2D.CircleCast(transform.position, 1, Vector2.left * transform.localScale.x, grabDistance);
+				hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.left * transform.localScale.x, grabDistance);
 				
 
 				if (hit.collider != null && (hit.collider.gameObject.CompareTag("WoodenObject") || hit.collider.gameObject.CompareTag("PhysicsObject")|| hit.collider.gameObject.CompareTag("Dwane"))) {
@@ -59,7 +59,7 @@ public class playerControllerScript : MonoBehaviour {
 					grab = true;
 				}
 			} 
-            if (grab) 
+            else if (grab) 
             {
 				print ("throw");
 				grab = false;
