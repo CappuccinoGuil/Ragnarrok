@@ -34,32 +34,32 @@ public class playerControllerScript : MonoBehaviour {
 			transform.position = new Vector3(transform.position.x + moveSpeed,transform.position.y,0f);
 			transform.localScale = new Vector3 (-0.6f, transform.localScale.y, transform.localScale.z);
         }
-        if(player.GetAxis("LHorizontal") < 0)
+        if (player.GetAxis("LHorizontal") < 0)
         {
 			transform.position = new Vector3(transform.position.x - moveSpeed,transform.position.y,0f);
 			transform.localScale = new Vector3 (0.6f, transform.localScale.y, transform.localScale.z);
 		}
 
-		if(player.GetButtonDown("AButton") && GroundCheck()) //performs ground check, if player is withing range of ground they can jump
+		if (player.GetButtonDown("AButton") && GroundCheck()) //performs ground check, if player is withing range of ground they can jump
         {
 			GetComponent<Rigidbody2D> ().AddForce(Vector2.up * jumpForce);
 		}
 
 		//Grabbing and Throwing
-		if(player.GetButtonDown("BButton"))
+		if (player.GetButtonDown("BButton"))
         {
 			if (!grab) 
             {
 				print ("grab");
 				hit = Physics2D.CircleCast(transform.position, 1, Vector2.left * transform.localScale.x, grabDistance);
-				print (transform.localScale.x);
+				
 
 				if (hit.collider != null && (hit.collider.gameObject.CompareTag("WoodenObject") || hit.collider.gameObject.CompareTag("PhysicsObject")|| hit.collider.gameObject.CompareTag("Dwane"))) {
 					print ("found");
 					grab = true;
 				}
 			} 
-            else if (grab) 
+            if (grab) 
             {
 				print ("throw");
 				grab = false;
@@ -70,14 +70,14 @@ public class playerControllerScript : MonoBehaviour {
 			}
 		}
 
-		if (grab) {
+		if (grab)
+        {
 			hit.collider.gameObject.transform.position = holdPoint.position;
 		}
 	}
 
     bool GroundCheck()
     {
-        Debug.DrawRay(transform.position, -transform.up * canJumpHeight, Color.cyan, 2);
         return Physics2D.Raycast(transform.position, -transform.up, canJumpHeight); 
     }
 

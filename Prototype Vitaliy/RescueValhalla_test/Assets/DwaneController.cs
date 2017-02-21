@@ -48,14 +48,8 @@ public class DwaneController: MonoBehaviour {
 
     void MoveRock()
     {
-        m_rb.AddTorque(m_spinSpeed* player.GetAxis("LHorizontal"));
+        m_rb.AddTorque( -m_spinSpeed * player.GetAxis("LHorizontal"));
     }
-
-    //void HandleInput()
-    //{
-    //    m_rb.AddForce(Vector2.left * (-m_moveSpeed * Input.GetAxis("Horizontal")));
-    //}
-
     void PullEffect()
     {
 
