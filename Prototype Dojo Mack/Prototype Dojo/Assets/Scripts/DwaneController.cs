@@ -6,7 +6,7 @@ public class DwaneController : MonoBehaviour {
 
     [SerializeField] float m_finalVelocity = 10.0f; // In metres per second.
     [SerializeField] float m_timeToSetVelocity = 3.0f;
-    [SerializeField] float m_angleOfForce = 180.0f;
+    [SerializeField] float m_angleOfForce = 90.0f;
     [SerializeField] float m_effectRadius = 2;
     [SerializeField] float m_pullForce = 2;
     [SerializeField] float m_pushForce = 5;

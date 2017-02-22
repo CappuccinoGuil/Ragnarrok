@@ -9,20 +9,25 @@ public class playerControllerScript : MonoBehaviour {
     [SerializeField] Transform holdPoint;
 	[SerializeField] float throwforce = 2f;
     [SerializeField] float moveSpeed = 0.01f;
-    [SerializeField] float jumpForce = 300f;
+    [SerializeField] float jumpHeight = 1f;
     [SerializeField] float canJumpHeight = 0.15f;
 
     private bool grab = false;
     private RaycastHit2D hit;
 
+    Rigidbody2D m_rb;
+
     //rewired
     public int playerId = 0;
     private Player player; // The Rewired Player
+
+    public float checkJump;
 
 
     void Awake()
     {
         player = ReInput.players.GetPlayer(playerId);//Initializes the ReWired inputs
+        m_rb = GetComponent<Rigidbody2D>();
     }
 
 	void Update ()
@@ -42,7 +47,8 @@ public class playerControllerScript : MonoBehaviour {
 
 		if (player.GetButtonDown("AButton") && GroundCheck()) //performs ground check, if player is withing range of ground they can jump
         {
-			GetComponent<Rigidbody2D> ().AddForce(Vector2.up * jumpForce);
+            Jump();
+			//GetComponent<Rigidbody2D> ().AddForce(Vector2.up * 300);
 		}
 
 		//Grabbing and Throwing
@@ -75,6 +81,13 @@ public class playerControllerScript : MonoBehaviour {
 			hit.collider.gameObject.transform.position = holdPoint.position;
 		}
 	}
+
+    void Jump()
+    {
+        float jumpVelocity = Mathf.Sqrt(-2 * Physics2D.gravity.y * jumpHeight);
+        checkJump = jumpVelocity;
+        m_rb.AddForce(Vector2.up * jumpVelocity, ForceMode2D.Impulse);
+    }
 
     bool GroundCheck()
     {
