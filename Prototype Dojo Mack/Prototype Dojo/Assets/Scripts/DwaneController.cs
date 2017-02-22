@@ -3,12 +3,17 @@ using System.Collections;
 
 public class DwaneController : MonoBehaviour {
 
-    [SerializeField] float m_appliedForce = 30.0f;
-    [SerializeField] float m_angleOfForce = 90.0f;
+
+    [SerializeField] float m_finalVelocity = 10.0f; // In metres per second.
+    [SerializeField] float m_timeToSetVelocity = 3.0f;
+    [SerializeField] float m_angleOfForce = 180.0f;
     [SerializeField] float m_effectRadius = 2;
     [SerializeField] float m_pullForce = 2;
     [SerializeField] float m_pushForce = 5;
 
+    public float m_checkVelocity;
+
+    private float m_appliedForce;
     private float m_sumOfTorque;
 
     private Rigidbody2D m_rb;
@@ -19,7 +24,8 @@ public class DwaneController : MonoBehaviour {
     void Start () {
         m_rb = GetComponent<Rigidbody2D>();
         m_circleCollider = GetComponent<CircleCollider2D>();
-        HandleFlatTorque();
+        CalculateForce(m_finalVelocity, m_timeToSetVelocity);
+        HandleTorque();
 	}
 	
 	void FixedUpdate()
@@ -40,6 +46,10 @@ public class DwaneController : MonoBehaviour {
         {
             PushEffect();
         }
+        m_rb.velocity = Vector2.ClampMagnitude(m_rb.velocity, m_finalVelocity);
+
+        m_checkVelocity = m_rb.velocity.x;
+
     }
 
     void MoveLeft()
@@ -52,7 +62,14 @@ public class DwaneController : MonoBehaviour {
         m_rb.AddTorque(m_sumOfTorque);
     }
 
-   void HandleFlatTorque()
+    float CalculateForce(float Fvelocity, float time)
+    {
+        float acceleration = 0 - Fvelocity / time;
+        return m_appliedForce = m_rb.mass * acceleration;
+    }
+
+
+   void HandleTorque()
     {
         float inertia = 0.5f * m_rb.mass * Mathf.Pow(m_circleCollider.radius, 2.0f);
         float angle = Mathf.Sin(m_angleOfForce) / -0.5f;
