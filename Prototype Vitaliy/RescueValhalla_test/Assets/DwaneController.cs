@@ -84,7 +84,7 @@ public class DwaneController: MonoBehaviour {
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
             {
 
-                m_rb.AddForce((item.transform.position - transform.position).normalized * -m_pushForce * m_reactionaryForce, ForceMode2D.Impulse);
+                m_rb.AddForce((item.transform.position - transform.position).normalized * -m_pushForce * (m_reactionaryForce / 2 ) , ForceMode2D.Impulse);
             }
         }
     }
