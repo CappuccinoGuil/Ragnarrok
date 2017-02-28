@@ -5,14 +5,21 @@ using UnityEngine;
 
 public class DwaneController: MonoBehaviour {
 
-    [SerializeField] float m_moveSpeed = 30.0f;
-    [SerializeField] float m_spinSpeed = 30.0f;
+    [SerializeField] float m_finalVelocity = 10.0f; // In metres per second.
+    [SerializeField] float m_timeToSetVelocity = 3.0f;
+    [SerializeField] float m_angleOfForce = 180.0f;
     [SerializeField] float m_effectRadius = 2;
     [SerializeField] float m_pullForce = 2;
     [SerializeField] float m_pushForce = 5;
     [SerializeField] float m_reactionaryForce = 5;
-    private Rigidbody2D m_rb;
 
+    public float m_checkVelocity;
+
+    private float m_appliedForce;
+    private float m_sumOfTorque;
+
+    private Rigidbody2D m_rb;
+    private CircleCollider2D m_circleCollider;
 
     //rewired
     public int playerId = 0;
@@ -28,13 +35,16 @@ public class DwaneController: MonoBehaviour {
     {
         player = ReInput.players.GetPlayer(playerId); //Initializes the ReWired inputs
         m_rb = GetComponent<Rigidbody2D>();
-	}
-	
-	void FixedUpdate ()
+        m_circleCollider = GetComponent<CircleCollider2D>();
+        CalculateForce(m_finalVelocity, m_timeToSetVelocity);
+        HandleTorque();
+    }
+
+    void FixedUpdate ()
     {
         if (player.GetAxis("LHorizontal") != 0)
         {
-            MoveRock();
+            m_rb.AddTorque(-m_sumOfTorque * player.GetAxis("LHorizontal"));
         }
         if (player.GetButton("AButton"))
         {
@@ -44,12 +54,33 @@ public class DwaneController: MonoBehaviour {
         {
             PushEffect();
         }
+
+        m_rb.velocity = Vector2.ClampMagnitude(m_rb.velocity, m_finalVelocity);
+        m_checkVelocity = m_rb.velocity.x;
+
     }
 
-    void MoveRock()
+
+    float CalculateForce(float Fvelocity, float time)
     {
-        m_rb.AddForce(Vector2.right * m_moveSpeed  * player.GetAxis("LHorizontal"), ForceMode2D.Force);
+        float acceleration = 0 - Fvelocity / time;
+        return m_appliedForce = m_rb.mass * acceleration;
     }
+
+
+    void HandleTorque()
+    {
+        float inertia = 0.5f * m_rb.mass * Mathf.Pow(m_circleCollider.radius, 2.0f);
+        float angle = Mathf.Sin(m_angleOfForce) / -0.5f;
+        float angularAcceleration = (angle * m_appliedForce) / (m_rb.mass * m_circleCollider.radius);
+
+        m_sumOfTorque = inertia * angularAcceleration;
+    }
+
+    //void MoveRock()
+    //{
+    //    m_rb.AddForce(Vector2.right * m_moveSpeed  * player.GetAxis("LHorizontal"), ForceMode2D.Force);
+    //}
     void PullEffect()
     {
 
