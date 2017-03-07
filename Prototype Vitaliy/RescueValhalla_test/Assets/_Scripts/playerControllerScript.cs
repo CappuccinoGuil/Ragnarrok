@@ -6,12 +6,12 @@ using Rewired;
 public class playerControllerScript : MonoBehaviour {
 
 	
-	[SerializeField] float grabDistance = 0.7f; 
+	[SerializeField] float grabDistance = 1f; 
     [SerializeField] Transform holdPoint;
     [SerializeField] GameObject m_pointer;
-    [SerializeField] float moveSpeed = 0.05f;
+    [SerializeField] float baseSpeed = 3f;
     [SerializeField] float jumpHeight = 1f;
-    [SerializeField] float canJumpHeight = 0.15f;
+    [SerializeField] float canJumpHeight = 1.1f;
     [SerializeField] float m_throwDistance = 1.0f;
     [SerializeField] float m_rateOfThrowDistIncrease = 2.0f;
 
@@ -21,9 +21,10 @@ public class playerControllerScript : MonoBehaviour {
     private bool m_createAimer = false;
     private bool m_isThereAnAimer = false;
     private bool m_putDown = false;
-    
-    public float m_yVelocity;
-    public float m_xVelocity;
+
+    private float m_moveSpeed;
+    private float m_yVelocity;
+    private float m_xVelocity;
     private float m_tempThrowDist;
 
     private RaycastHit2D hit;
@@ -51,15 +52,20 @@ public class playerControllerScript : MonoBehaviour {
      {
         if (!m_isAiming)
         {
+            if(player.GetButton("RTrigger"))
+            {
+                m_moveSpeed = baseSpeed * 2;
+            } else { m_moveSpeed = baseSpeed; }
+
             if (player.GetAxis("LHorizontal") > 0)
             {
                 Debug.Log(player.GetAxisRaw("LHorizontal"));
-                transform.position += transform.right * moveSpeed * Time.deltaTime;
+                transform.position += transform.right * m_moveSpeed * Time.deltaTime;
                 transform.localScale = new Vector3(-0.6f, transform.localScale.y, transform.localScale.z);
             }
             if (player.GetAxis("LHorizontal") < 0)
             {
-                transform.position += transform.right * -moveSpeed * Time.deltaTime;
+                transform.position += transform.right * -m_moveSpeed * Time.deltaTime;
                 transform.localScale = new Vector3(0.6f, transform.localScale.y, transform.localScale.z);
             }
 
