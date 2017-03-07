@@ -6,17 +6,20 @@ using UnityEngine;
 public class DwaneController: MonoBehaviour {
 
     [SerializeField] float m_finalVelocity = 10.0f; // In metres per second.
+    [SerializeField] float m_finalPullVelocity = 22.0f;
+    [SerializeField] float m_finalPushVelocity = 10.0f;
     [SerializeField] float m_timeToSetVelocity = 3.0f;
+    [SerializeField] float m_timeToSetPullVelocity = 1.0f;
+    [SerializeField] float m_timeToSetPushVelocity = 1.0f;
     [SerializeField] float m_angleOfForce = 180.0f;
     [SerializeField] float m_effectRadius = 2;
-    [SerializeField] float m_pullForce = 2;
-    [SerializeField] float m_pushForce = 5;
-    [SerializeField] float m_reactionaryForce = 5;
-
-    public float m_checkVelocity;
 
     private float m_appliedForce;
     private float m_sumOfTorque;
+    private float m_pullForce;
+    private float m_pushForce;
+
+    private Vector2 m_magDist;
 
     private Rigidbody2D m_rb;
     private CircleCollider2D m_circleCollider;
@@ -56,10 +59,15 @@ public class DwaneController: MonoBehaviour {
         }
 
         m_rb.velocity = Vector2.ClampMagnitude(m_rb.velocity, m_finalVelocity);
-        m_checkVelocity = m_rb.velocity.x;
 
     }
 
+    float CalculateMagForce(float Fvelocity, float time, float dist)
+    {
+        float acceleration = Fvelocity - 0 / time;
+        float force = m_rb.mass * acceleration;
+        return force = force / dist;
+    }
 
     float CalculateForce(float Fvelocity, float time)
     {
@@ -77,26 +85,25 @@ public class DwaneController: MonoBehaviour {
         m_sumOfTorque = inertia * angularAcceleration;
     }
 
-    //void MoveRock()
-    //{
-    //    m_rb.AddForce(Vector2.right * m_moveSpeed  * player.GetAxis("LHorizontal"), ForceMode2D.Force);
-    //}
     void PullEffect()
     {
 
         Collider2D[] inRange = Physics2D.OverlapCircleAll(transform.position, m_effectRadius);
         foreach (Collider2D item in inRange)
         {
+            m_magDist = item.transform.position - transform.position;
+            //m_magDist.y -= (transform.position.y);
+            m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
+
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
             {
-                item.attachedRigidbody.AddForce((item.transform.position - transform.position).normalized * -m_pullForce, ForceMode2D.Force); // messy but if the detected collider has a rigidbody and is tagged as interactive a pull force is applied
-                m_rb.AddForce((item.transform.position - transform.position).normalized * m_pullForce , ForceMode2D.Force);
+                item.attachedRigidbody.AddForce((m_magDist).normalized * -m_pullForce, ForceMode2D.Force); // messy but if the detected collider has a rigidbody and is tagged as interactive a pull force is applied
+                m_rb.AddForce((m_magDist).normalized * m_pullForce , ForceMode2D.Force);
             }
 
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
             {
-
-                m_rb.AddForce((item.transform.position - transform.position).normalized * m_pullForce * m_reactionaryForce, ForceMode2D.Force);
+                m_rb.AddForce((m_magDist).normalized * m_pullForce, ForceMode2D.Force);
             }
         }
     }
@@ -107,15 +114,18 @@ public class DwaneController: MonoBehaviour {
         Collider2D[] inRange = Physics2D.OverlapCircleAll(transform.position, m_effectRadius);
         foreach (Collider2D item in inRange)
         {
+            m_magDist = item.transform.position - transform.position;
+            m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.magnitude);
+
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
             {
-                item.attachedRigidbody.AddForce((item.transform.position - transform.position).normalized * m_pushForce, ForceMode2D.Impulse); // messy but if the detected collider has a rigidbody and is tagged as interactive a push force is applied
-                m_rb.AddForce((item.transform.position - transform.position).normalized * -m_pushForce, ForceMode2D.Impulse);
+                item.attachedRigidbody.AddForce((m_magDist).normalized * m_pushForce, ForceMode2D.Impulse); // messy but if the detected collider has a rigidbody and is tagged as interactive a push force is applied
+                m_rb.AddForce((m_magDist).normalized * -m_pushForce, ForceMode2D.Impulse);
             }
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
             {
 
-                m_rb.AddForce((item.transform.position - transform.position).normalized * -m_pushForce * (m_reactionaryForce / 2 ) , ForceMode2D.Impulse);
+                m_rb.AddForce((m_magDist).normalized * -m_pushForce, ForceMode2D.Impulse);
             }
         }
     }
