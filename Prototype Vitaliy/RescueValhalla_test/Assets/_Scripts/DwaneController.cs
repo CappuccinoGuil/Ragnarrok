@@ -11,15 +11,13 @@ public class DwaneController: MonoBehaviour {
     [SerializeField] float m_timeToSetVelocity = 3.0f;
     [SerializeField] float m_timeToSetPullVelocity = 1.0f;
     [SerializeField] float m_timeToSetPushVelocity = 1.0f;
-    [SerializeField] float m_angleOfForce = 180.0f;
     [SerializeField] float m_effectRadius = 2;
 
     private float m_appliedForce;
     private float m_sumOfTorque;
     private float m_pullForce;
     private float m_pushForce;
-
-    private Vector2 m_magDist;
+    private float m_angleOfForce = -180.0f;
 
     private Rigidbody2D m_rb;
     private CircleCollider2D m_circleCollider;
@@ -91,8 +89,7 @@ public class DwaneController: MonoBehaviour {
         Collider2D[] inRange = Physics2D.OverlapCircleAll(transform.position, m_effectRadius);
         foreach (Collider2D item in inRange)
         {
-            m_magDist = item.transform.position - transform.position;
-            //m_magDist.y -= (transform.position.y);
+            Vector2 m_magDist = item.transform.position - transform.position;
             m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
 
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
@@ -101,9 +98,15 @@ public class DwaneController: MonoBehaviour {
                 m_rb.AddForce((m_magDist).normalized * m_pullForce , ForceMode2D.Force);
             }
 
-            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
+            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveVert"))
             {
-                m_rb.AddForce((m_magDist).normalized * m_pullForce, ForceMode2D.Force);
+                Vector2 dist = new Vector2(m_magDist.x, 0);
+                m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
+            }
+            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveHorz"))
+            {
+                Vector2 dist = new Vector2(0, m_magDist.y);
+                m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
             }
         }
     }
@@ -114,7 +117,7 @@ public class DwaneController: MonoBehaviour {
         Collider2D[] inRange = Physics2D.OverlapCircleAll(transform.position, m_effectRadius);
         foreach (Collider2D item in inRange)
         {
-            m_magDist = item.transform.position - transform.position;
+            Vector2 m_magDist = item.transform.position - transform.position;
             m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.magnitude);
 
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
@@ -122,7 +125,7 @@ public class DwaneController: MonoBehaviour {
                 item.attachedRigidbody.AddForce((m_magDist).normalized * m_pushForce, ForceMode2D.Impulse); // messy but if the detected collider has a rigidbody and is tagged as interactive a push force is applied
                 m_rb.AddForce((m_magDist).normalized * -m_pushForce, ForceMode2D.Impulse);
             }
-            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
+            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveVert") || item.CompareTag("FixedInteractiveHorz"))
             {
 
                 m_rb.AddForce((m_magDist).normalized * -m_pushForce, ForceMode2D.Impulse);
