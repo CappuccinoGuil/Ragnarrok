@@ -52,7 +52,7 @@ public class playerControllerScript : MonoBehaviour {
      {
         if (!m_isAiming)
         {
-            if(player.GetButton("RTrigger"))
+            if(player.GetButton("XButton"))
             {
                 m_moveSpeed = baseSpeed * 2;
             } else { m_moveSpeed = baseSpeed; }

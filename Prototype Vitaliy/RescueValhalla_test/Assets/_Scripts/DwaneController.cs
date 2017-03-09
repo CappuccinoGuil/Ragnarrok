@@ -17,7 +17,7 @@ public class DwaneController: MonoBehaviour {
     private float m_sumOfTorque;
     private float m_pullForce;
     private float m_pushForce;
-    private float m_angleOfForce = -180.0f;
+    public float m_angleOfForce = -180.0f;
 
     private Rigidbody2D m_rb;
     private CircleCollider2D m_circleCollider;
@@ -25,7 +25,7 @@ public class DwaneController: MonoBehaviour {
     //rewired
     public int playerId = 0;
     private Player player; // The Rewired Player
-
+    public float test;
 
     void Awake ()
     {
@@ -38,13 +38,21 @@ public class DwaneController: MonoBehaviour {
         m_rb = GetComponent<Rigidbody2D>();
         m_circleCollider = GetComponent<CircleCollider2D>();
         CalculateForce(m_finalVelocity, m_timeToSetVelocity);
-        HandleTorque();
+    }
+
+    void Update()
+    {
+        if(player.GetButtonUp("AButton"))
+        {
+            m_angleOfForce = -180;
+        }
     }
 
     void FixedUpdate ()
     {
         if (player.GetAxis("LHorizontal") != 0)
         {
+            HandleTorque();
             m_rb.AddTorque(-m_sumOfTorque * player.GetAxis("LHorizontal"));
         }
         if (player.GetButton("AButton"))
@@ -90,23 +98,41 @@ public class DwaneController: MonoBehaviour {
         foreach (Collider2D item in inRange)
         {
             Vector2 m_magDist = item.transform.position - transform.position;
-            m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
 
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
             {
+                m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
                 item.attachedRigidbody.AddForce((m_magDist).normalized * -m_pullForce, ForceMode2D.Force); // messy but if the detected collider has a rigidbody and is tagged as interactive a pull force is applied
                 m_rb.AddForce((m_magDist).normalized * m_pullForce , ForceMode2D.Force);
             }
 
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveVert"))
             {
+                m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.x);
                 Vector2 dist = new Vector2(m_magDist.x, 0);
-                m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
+                test = dist.x;
+                if (dist.x > 0)
+                {
+                    m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
+                }
+                if (dist.x < 0)
+                {
+                    m_rb.AddForce((dist).normalized * -m_pullForce, ForceMode2D.Force);
+                }
             }
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveHorz"))
             {
+                m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.y);
                 Vector2 dist = new Vector2(0, m_magDist.y);
-                m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
+                if (dist.y > 0)
+                {
+                    m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
+                    m_angleOfForce = 180;
+                } else { m_angleOfForce = -180; }
+                if (dist.y < 0)
+                {
+                    m_rb.AddForce((dist).normalized * -m_pullForce, ForceMode2D.Force);
+                }
             }
         }
     }
@@ -118,17 +144,38 @@ public class DwaneController: MonoBehaviour {
         foreach (Collider2D item in inRange)
         {
             Vector2 m_magDist = item.transform.position - transform.position;
-            m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.magnitude);
 
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
             {
+                m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.magnitude);
                 item.attachedRigidbody.AddForce((m_magDist).normalized * m_pushForce, ForceMode2D.Impulse); // messy but if the detected collider has a rigidbody and is tagged as interactive a push force is applied
                 m_rb.AddForce((m_magDist).normalized * -m_pushForce, ForceMode2D.Impulse);
             }
-            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveVert") || item.CompareTag("FixedInteractiveHorz"))
+            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveVert"))
             {
-
-                m_rb.AddForce((m_magDist).normalized * -m_pushForce, ForceMode2D.Impulse);
+                m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.x);
+                Vector2 dist = new Vector2(m_magDist.x, 0);
+                if (dist.x > 0)
+                {
+                    m_rb.AddForce((dist).normalized * -m_pushForce, ForceMode2D.Impulse);
+                }
+                if (dist.x < 0)
+                {
+                    m_rb.AddForce((dist).normalized * m_pushForce, ForceMode2D.Impulse);
+                }
+            }
+            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveHorz"))
+            {
+                m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.y);
+                Vector2 dist = new Vector2(0, m_magDist.y);
+                if (dist.y > 0)
+                {
+                    m_rb.AddForce((dist).normalized * -m_pushForce, ForceMode2D.Impulse);
+                }
+                if (dist.y < 0)
+                {
+                    m_rb.AddForce((dist).normalized * m_pushForce, ForceMode2D.Impulse);
+                }
             }
         }
     }
