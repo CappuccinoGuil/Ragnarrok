@@ -6,7 +6,8 @@ using UnityEngine;
 public class DwaneController: MonoBehaviour {
 
     [SerializeField] float m_finalVelocity = 10.0f; // In metres per second.
-    [SerializeField] float m_finalPullVelocity = 22.0f;
+    [SerializeField] float m_finalPullVelocity = 23.0f;
+    [SerializeField] float m_finalRoundedPullVelocity = 25.0f;
     [SerializeField] float m_finalPushVelocity = 10.0f;
     [SerializeField] float m_timeToSetVelocity = 3.0f;
     [SerializeField] float m_timeToSetPullVelocity = 1.0f;
@@ -17,15 +18,18 @@ public class DwaneController: MonoBehaviour {
     private float m_sumOfTorque;
     private float m_pullForce;
     private float m_pushForce;
-    public float m_angleOfForce = -180.0f;
+    private float m_angleOfForce = -180.0f;
+
+    public bool m_horizontalMovement = true;
 
     private Rigidbody2D m_rb;
     private CircleCollider2D m_circleCollider;
 
+    public Vector2 test;
+
     //rewired
     public int playerId = 0;
     private Player player; // The Rewired Player
-    public float test;
 
     void Awake ()
     {
@@ -50,10 +54,21 @@ public class DwaneController: MonoBehaviour {
 
     void FixedUpdate ()
     {
-        if (player.GetAxis("LHorizontal") != 0)
+        if (m_horizontalMovement)
         {
-            HandleTorque();
-            m_rb.AddTorque(-m_sumOfTorque * player.GetAxis("LHorizontal"));
+            if (player.GetAxis("LHorizontal") != 0)
+            {
+                HandleTorque();
+                m_rb.AddTorque(-m_sumOfTorque * player.GetAxis("LHorizontal"));
+            }
+        }
+        if (!m_horizontalMovement)
+        {
+            if (player.GetAxis("LVertical") != 0)
+            {
+                HandleTorque();
+                m_rb.AddTorque(-m_sumOfTorque * player.GetAxis("LVertical"));
+            }
         }
         if (player.GetButton("AButton"))
         {
@@ -110,7 +125,6 @@ public class DwaneController: MonoBehaviour {
             {
                 m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.x);
                 Vector2 dist = new Vector2(m_magDist.x, 0);
-                test = dist.x;
                 if (dist.x > 0)
                 {
                     m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
@@ -132,6 +146,22 @@ public class DwaneController: MonoBehaviour {
                 if (dist.y < 0)
                 {
                     m_rb.AddForce((dist).normalized * -m_pullForce, ForceMode2D.Force);
+                }
+            }
+            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
+            {
+                m_pullForce = CalculateMagForce(m_finalRoundedPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
+                Vector2 dist = m_magDist.normalized;
+                test = dist;
+                if (dist.y > 0)
+                {
+                    m_rb.AddForce((dist) * m_pullForce, ForceMode2D.Force);
+                    m_angleOfForce = 180;
+                }
+                if (dist.y < 0)
+                {
+                    m_rb.AddForce((dist) * m_pullForce, ForceMode2D.Force);
+                    m_angleOfForce = -180;
                 }
             }
         }
@@ -176,6 +206,12 @@ public class DwaneController: MonoBehaviour {
                 {
                     m_rb.AddForce((dist).normalized * m_pushForce, ForceMode2D.Impulse);
                 }
+            }
+            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
+            {
+                m_pushForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
+                Vector2 dist = m_magDist.normalized;
+                m_rb.AddForce((dist) * -m_pushForce, ForceMode2D.Impulse);
             }
         }
     }
