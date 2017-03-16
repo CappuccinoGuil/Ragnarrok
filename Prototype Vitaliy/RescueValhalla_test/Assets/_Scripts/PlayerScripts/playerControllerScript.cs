@@ -16,6 +16,7 @@ public class playerControllerScript : MonoBehaviour {
     [SerializeField] float m_rateOfThrowDistIncrease = 2.0f;
 
     private bool m_isGrabbing = false;
+    private bool m_throwMode = false;
     private bool m_isAiming = false;
     private bool m_isThrowing = false;
     private bool m_createAimer = false;
@@ -50,7 +51,7 @@ public class playerControllerScript : MonoBehaviour {
 	void Update ()
     
      {
-        if (!m_isAiming)
+        if (!m_throwMode)
         {
             if(player.GetButton("XButton"))
             {
@@ -77,76 +78,115 @@ public class playerControllerScript : MonoBehaviour {
 
 		//Grabbing and Throwing
 
-		if (player.GetButtonUp("BButton"))
+		if (player.GetButtonDown("BButton") && !m_isGrabbing)
         {
-			if (!m_isGrabbing) 
-            {
-				print ("grab");
-				hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.left * transform.localScale.x, grabDistance);
-                m_rbHit = hit.rigidbody;
+			print ("grab");
+			hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.left * transform.localScale.x, grabDistance);
+            m_rbHit = hit.rigidbody;
 
-                if (hit.collider != null && (hit.collider.gameObject.CompareTag("WoodenObject") || hit.collider.gameObject.CompareTag("PhysicsObject")|| hit.collider.gameObject.CompareTag("Dwane"))) {
-					print ("found");
-					m_isGrabbing = true;
-				}
-			} 
-            else if (m_isGrabbing && m_isAiming) 
+            if (hit && (hit.collider.CompareTag("WoodenObject") || hit.collider.CompareTag("PhysicsObject")|| hit.collider.CompareTag("Dwane")))
             {
-				print ("throw");
-				m_isGrabbing = false;
-				if (hit) 
-                {
-                    m_isThrowing = true;
-                    // setting hold point rotation back to origin after throw
-                    holdPoint.transform.rotation = m_tempHoldRotation;
-                }
-            }
-		} else if(player.GetButton("BButton") && m_isAiming)
+				print ("found");
+				m_isGrabbing = true;
+		    }
+			 
+    //        else if (m_isGrabbing && m_isAiming) 
+    //        {
+				//print ("throw");
+				//m_isGrabbing = false;
+				//if (hit) 
+    //            {
+    //                m_isThrowing = true;
+    //                // setting hold point rotation back to origin after throw
+    //                holdPoint.transform.rotation = m_tempHoldRotation;
+    //            }
+    //        }
+		}
+        if ((player.GetAxisRaw("LHorizontal") > 0 || player.GetAxisRaw("LVertical") > 0) && m_isGrabbing)
         {
             m_tempThrowDist += Time.deltaTime * m_rateOfThrowDistIncrease;
-        } else { m_tempThrowDist = m_throwDistance; }
+
+        }
+        if ((player.GetAxisRaw("LHorizontal") > 0 || player.GetAxisRaw("LVertical") > 0) && (m_throwMode && !m_isThereAnAimer))
+        {
+            m_createAimer = true;
+            m_isAiming = true;
+
+        } else if((player.GetAxisRaw("LHorizontal") == 0 || player.GetAxisRaw("LVertical") == 0) && m_isThereAnAimer)
+        {
+            m_yVelocity = m_yVelocity * 0.1f;
+            m_xVelocity = m_xVelocity * 0.1f;
+
+            Destroy(createdAim[0]);
+            createdAim.Clear();
+            m_isThereAnAimer = false;
+
+            m_tempThrowDist = m_throwDistance;
+        }
+        if(player.GetButtonUp("BButton") && m_isGrabbing && m_isAiming)
+        {
+            m_isThrowing = true;
+            holdPoint.transform.rotation = m_tempHoldRotation;
+            m_isGrabbing = false;
+            m_isAiming = false;
+            if(m_isThereAnAimer)
+            {
+                Destroy(createdAim[0]);
+                createdAim.Clear();
+                m_isThereAnAimer = false;
+            }
+
+        }
+        if(player.GetButton("BButton") && m_isGrabbing /*m_isAiming*/)
+        {
+            m_throwMode = true;
+
+            // m_tempThrowDist += Time.deltaTime * m_rateOfThrowDistIncrease;
+        }
+        else
+        {
+            m_throwMode = false;
+            m_tempThrowDist = m_throwDistance;
+        }
 
 		if (m_isGrabbing)
         {
 			hit.transform.position = holdPoint.position;
 		}
 
-        if (player.GetButton("LTrigger") && m_isGrabbing)
+        //if (player.GetButton("LTrigger") && m_isGrabbing)
+        //{
+        //    m_isAiming = true;
+        //}
+        //else { m_isAiming = false; }
+
+        //if(player.GetButtonDown("LTrigger"))
+        //{
+        //    m_createAimer = true;
+        //}
+
+        //if(player.GetButtonUp("LTrigger") && m_isThereAnAimer)
+        //{
+        //    Destroy(createdAim[0]);
+        //    createdAim.Clear();
+        //    m_isThereAnAimer = false;
+        //}
+
+        if (m_createAimer)
         {
-            m_isAiming = true;
+            CreateAimer();
+            m_isThereAnAimer = true;
+            m_createAimer = false;
         }
-        else { m_isAiming = false; }
 
-        if(player.GetButtonDown("LTrigger"))
-        {
-            m_createAimer = true;
-        }
-
-        if(player.GetButtonUp("LTrigger") && m_isThereAnAimer)
-        {
-            Destroy(createdAim[0]);
-            createdAim.Clear();
-            m_isThereAnAimer = false;
-        }
-
-        if (m_isAiming)
-        {
-            if(m_createAimer)
-            {
-                CreateAimer();
-                m_isThereAnAimer = true;
-                m_createAimer = false;
-            }
-
-            RotateAimer();
-        } 
     }
 
     void FixedUpdate()
     {
-        if(m_isAiming)
+        if(m_throwMode && m_isThereAnAimer)
         {
-          HandleThrow();
+            RotateAimer();
+            HandleThrow();
         }
         if(m_isThrowing)
         {
@@ -158,10 +198,8 @@ public class playerControllerScript : MonoBehaviour {
     void HandleThrow()
     {
         int finalVelocity = 0;
-
         Vector3 throwDirection = createdAim[0].transform.rotation.eulerAngles;
         float theta = throwDirection.z * Mathf.Deg2Rad;
-
         float initalVelocity = Mathf.Sqrt(finalVelocity - (2 * Physics2D.gravity.y * m_tempThrowDist));
 
         m_yVelocity = (initalVelocity * Mathf.Cos(theta));

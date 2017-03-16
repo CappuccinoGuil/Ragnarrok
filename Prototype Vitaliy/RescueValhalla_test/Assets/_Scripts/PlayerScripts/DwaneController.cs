@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class DwaneController: MonoBehaviour {
 
-    [SerializeField] float m_finalVelocity = 10.0f; // In metres per second.
+    [SerializeField] float m_finalVelocity = 9.0f; // In metres per second.
     [SerializeField] float m_finalPullVelocity = 23.0f;
-    [SerializeField] float m_finalRoundedPullVelocity = 25.0f;
+    [SerializeField] float m_finalRoundedPullVelocity = 55.0f;
     [SerializeField] float m_finalPushVelocity = 10.0f;
     [SerializeField] float m_timeToSetVelocity = 3.0f;
     [SerializeField] float m_timeToSetPullVelocity = 1.0f;
