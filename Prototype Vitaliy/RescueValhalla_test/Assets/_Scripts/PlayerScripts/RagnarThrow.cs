@@ -13,12 +13,13 @@ public class RagnarThrow : MonoBehaviour
     [SerializeField] float m_throwDistance = 1.0f;
     [SerializeField] float m_rateOfThrowDistIncrease = 2.0f;
 
-    private bool m_isGrabbing = false;
+    public bool m_isGrabbing = false;
+
     private bool m_isThrowing = false;
     private bool m_createAimer = false;
     private bool m_isThereAnAimer = false;
     private bool m_putDown = false;
-    public bool m_cancelThrow = false;
+    private bool m_cancelThrow = false;
 
     private float m_yVelocity;
     private float m_xVelocity;
@@ -93,21 +94,27 @@ public class RagnarThrow : MonoBehaviour
 
         if (!m_cancelThrow)
         {
+            if (player.GetAxis("RHorizontal") > 0)
+            {
+                transform.localScale = new Vector3(0.6f, transform.localScale.y, transform.localScale.z);
+            }
+            if (player.GetAxis("RHorizontal") < 0)
+            {
+                transform.localScale = new Vector3(-0.6f, transform.localScale.y, transform.localScale.z);
+            }
             if ((player.GetAxisRaw("RHorizontal") != 0 || player.GetAxisRaw("RVertical") != 0) && m_isGrabbing)
             {
                 m_tempThrowDist += Time.deltaTime * m_rateOfThrowDistIncrease;
-
             }
             if ((player.GetAxisRaw("RHorizontal") != 0.0f || player.GetAxisRaw("RVertical") != 0.0f) && (m_isGrabbing && !m_isThereAnAimer))
             {
                 ragnar.m_throwMode = true;
                 m_createAimer = true;
             }
-            else if ((player.GetAxisRaw("RHorizontal") == 0 || player.GetAxisRaw("RVertical") == 0) && m_isThereAnAimer)
+            else if ((player.GetAxisRaw("RHorizontal") == 0 && player.GetAxisRaw("RVertical") == 0) && m_isThereAnAimer)
             {
                 m_isThrowing = true;
                 holdPoint.transform.rotation = m_tempHoldRotation;
-
 
                 Destroy(createdAim[0]);
                 createdAim.Clear();
@@ -117,29 +124,6 @@ public class RagnarThrow : MonoBehaviour
                 m_isThereAnAimer = false;
             }
         }
-        //if (player.GetButtonUp("RTrigger") && m_isGrabbing && m_isAiming)
-        //{
-        //    m_isThrowing = true;
-        //    holdPoint.transform.rotation = m_tempHoldRotation;
-        //    m_isGrabbing = false;
-        //    m_isAiming = false;
-        //    if (m_isThereAnAimer)
-        //    {
-        //        Destroy(createdAim[0]);
-        //        createdAim.Clear();
-        //        m_isThereAnAimer = false;
-        //    }
-
-        //}
-        //if (player.GetButton("RTrigger") && m_isGrabbing /*m_isAiming*/)
-        //{
-        //    ragnar.m_throwMode = true;
-        //}
-        //else
-        //{
-        //    ragnar.m_throwMode = false;
-        //    m_tempThrowDist = m_throwDistance;
-        //}
 
         if (m_isGrabbing)
         {
@@ -188,6 +172,7 @@ public class RagnarThrow : MonoBehaviour
         float tarAngle = Mathf.Atan2(vert, horz) * Mathf.Rad2Deg;
 
         createdAim[0].transform.rotation = Quaternion.Euler(0, 0, tarAngle + 90);
+        createdAim[0].transform.position = holdPoint.position + transform.forward * -0.5f;
     }
 
     void CreateAimer()
