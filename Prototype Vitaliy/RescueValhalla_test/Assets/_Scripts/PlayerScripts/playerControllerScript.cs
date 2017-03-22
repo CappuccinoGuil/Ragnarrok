@@ -15,8 +15,11 @@ public class playerControllerScript : MonoBehaviour {
     [SerializeField] float m_throwDistance = 1.0f;
     [SerializeField] float m_rateOfThrowDistIncrease = 2.0f;
 
+    [SerializeField] bool m_useThrow = true;
+
+    public bool m_throwMode = false;
+
     private bool m_isGrabbing = false;
-    private bool m_throwMode = false;
     private bool m_isAiming = false;
     private bool m_isThrowing = false;
     private bool m_createAimer = false;
@@ -76,123 +79,132 @@ public class playerControllerScript : MonoBehaviour {
             }
         }
 
-		//Grabbing and Throwing
-
-		if (player.GetButtonDown("BButton") && !m_isGrabbing)
+        //Grabbing and Throwing
+        if (m_useThrow)
         {
-			print ("grab");
-			hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.left * transform.localScale.x, grabDistance);
-            m_rbHit = hit.rigidbody;
-
-            if (hit && (hit.collider.CompareTag("WoodenObject") || hit.collider.CompareTag("PhysicsObject")|| hit.collider.CompareTag("Dwane")))
+            if (player.GetButtonDown("BButton") && !m_isGrabbing)
             {
-				print ("found");
-				m_isGrabbing = true;
-		    }
-			 
-    //        else if (m_isGrabbing && m_isAiming) 
-    //        {
-				//print ("throw");
-				//m_isGrabbing = false;
-				//if (hit) 
-    //            {
-    //                m_isThrowing = true;
-    //                // setting hold point rotation back to origin after throw
-    //                holdPoint.transform.rotation = m_tempHoldRotation;
-    //            }
-    //        }
-		}
-        if ((player.GetAxisRaw("LHorizontal") > 0 || player.GetAxisRaw("LVertical") > 0) && m_isGrabbing)
-        {
-            m_tempThrowDist += Time.deltaTime * m_rateOfThrowDistIncrease;
+                print("grab");
+                hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.left * transform.localScale.x, grabDistance);
+                m_rbHit = hit.rigidbody;
 
-        }
-        if ((player.GetAxisRaw("LHorizontal") > 0 || player.GetAxisRaw("LVertical") > 0) && (m_throwMode && !m_isThereAnAimer))
-        {
-            m_createAimer = true;
-            m_isAiming = true;
+                if (hit && (hit.collider.CompareTag("WoodenObject") || hit.collider.CompareTag("PhysicsObject") || hit.collider.CompareTag("Dwane")))
+                {
+                    print("found");
+                    m_isGrabbing = true;
+                }
 
-        } else if((player.GetAxisRaw("LHorizontal") == 0 || player.GetAxisRaw("LVertical") == 0) && m_isThereAnAimer)
-        {
-            m_yVelocity = m_yVelocity * 0.1f;
-            m_xVelocity = m_xVelocity * 0.1f;
-
-            Destroy(createdAim[0]);
-            createdAim.Clear();
-            m_isThereAnAimer = false;
-
-            m_tempThrowDist = m_throwDistance;
-        }
-        if(player.GetButtonUp("BButton") && m_isGrabbing && m_isAiming)
-        {
-            m_isThrowing = true;
-            holdPoint.transform.rotation = m_tempHoldRotation;
-            m_isGrabbing = false;
-            m_isAiming = false;
-            if(m_isThereAnAimer)
+                //        else if (m_isGrabbing && m_isAiming) 
+                //        {
+                //print ("throw");
+                //m_isGrabbing = false;
+                //if (hit) 
+                //            {
+                //                m_isThrowing = true;
+                //                // setting hold point rotation back to origin after throw
+                //                holdPoint.transform.rotation = m_tempHoldRotation;
+                //            }
+                //        }
+            }
+            if ((player.GetAxisRaw("LHorizontal") != 0 || player.GetAxisRaw("LVertical") != 0) && m_isGrabbing)
             {
+                m_tempThrowDist += Time.deltaTime * m_rateOfThrowDistIncrease;
+
+            }
+            if ((player.GetAxisRaw("LHorizontal") != 0 || player.GetAxisRaw("LVertical") != 0) && (m_throwMode && !m_isThereAnAimer))
+            {
+                m_createAimer = true;
+                m_isAiming = true;
+
+            }
+            else if ((player.GetAxisRaw("LHorizontal") == 0 || player.GetAxisRaw("LVertical") == 0) && m_isThereAnAimer)
+            {
+                m_yVelocity = m_yVelocity * 0.1f;
+                m_xVelocity = m_xVelocity * 0.1f;
+
                 Destroy(createdAim[0]);
                 createdAim.Clear();
                 m_isThereAnAimer = false;
+
+                m_tempThrowDist = m_throwDistance;
+            }
+            if (player.GetButtonUp("BButton") && m_isGrabbing && m_isAiming)
+            {
+                m_isThrowing = true;
+                holdPoint.transform.rotation = m_tempHoldRotation;
+                m_isAiming = false;
+                if (m_isThereAnAimer)
+                {
+                    Destroy(createdAim[0]);
+                    createdAim.Clear();
+                    m_isThereAnAimer = false;
+                }
+
+            }
+            if (player.GetButton("BButton") && m_isGrabbing /*m_isAiming*/)
+            {
+                m_throwMode = true;
+
+                // m_tempThrowDist += Time.deltaTime * m_rateOfThrowDistIncrease;
+            }
+            else
+            {
+                m_throwMode = false;
+                m_tempThrowDist = m_throwDistance;
             }
 
-        }
-        if(player.GetButton("BButton") && m_isGrabbing /*m_isAiming*/)
-        {
-            m_throwMode = true;
+            if (m_isGrabbing)
+            {
+                hit.transform.position = holdPoint.position;
+            }
 
-            // m_tempThrowDist += Time.deltaTime * m_rateOfThrowDistIncrease;
-        }
-        else
-        {
-            m_throwMode = false;
-            m_tempThrowDist = m_throwDistance;
-        }
+            //if (player.GetButton("LTrigger") && m_isGrabbing)
+            //{
+            //    m_isAiming = true;
+            //}
+            //else { m_isAiming = false; }
 
-		if (m_isGrabbing)
-        {
-			hit.transform.position = holdPoint.position;
-		}
+            //if(player.GetButtonDown("LTrigger"))
+            //{
+            //    m_createAimer = true;
+            //}
 
-        //if (player.GetButton("LTrigger") && m_isGrabbing)
-        //{
-        //    m_isAiming = true;
-        //}
-        //else { m_isAiming = false; }
+            //if(player.GetButtonUp("LTrigger") && m_isThereAnAimer)
+            //{
+            //    Destroy(createdAim[0]);
+            //    createdAim.Clear();
+            //    m_isThereAnAimer = false;
+            //}
 
-        //if(player.GetButtonDown("LTrigger"))
-        //{
-        //    m_createAimer = true;
-        //}
+            if (m_createAimer)
+            {
+                CreateAimer();
+                m_isThereAnAimer = true;
+                m_createAimer = false;
+            }
 
-        //if(player.GetButtonUp("LTrigger") && m_isThereAnAimer)
-        //{
-        //    Destroy(createdAim[0]);
-        //    createdAim.Clear();
-        //    m_isThereAnAimer = false;
-        //}
-
-        if (m_createAimer)
-        {
-            CreateAimer();
-            m_isThereAnAimer = true;
-            m_createAimer = false;
         }
 
     }
 
     void FixedUpdate()
     {
-        if(m_throwMode && m_isThereAnAimer)
+        if (m_useThrow)
         {
-            RotateAimer();
-            HandleThrow();
+
+            if (m_throwMode && m_isThereAnAimer)
+            {
+                RotateAimer();
+                HandleThrow();
+            }
+            if (m_isThrowing)
+            {
+                m_rbHit.velocity = new Vector2(m_xVelocity, m_yVelocity);
+                m_isThrowing = false;
+                m_isGrabbing = false;
+            }
         }
-        if(m_isThrowing)
-        {
-          m_rbHit.velocity = new Vector2(m_xVelocity, m_yVelocity);
-          m_isThrowing = false;
-        }
+           
     }
 
     void HandleThrow()
