@@ -6,10 +6,11 @@ using Rewired;
 public class playerControllerScript : MonoBehaviour {
 
     [SerializeField] float baseSpeed = 3f;
-    [SerializeField] float jumpHeight = 1f;
-    [SerializeField] float canJumpHeight = 1.1f;
+    [SerializeField] float jumpHeight = 1.5f;
+    [SerializeField] float canJumpHeight = 1.4f;
 
     public bool m_throwMode = false;
+    public bool m_facingRight = true;
 
     private float m_moveSpeed;
     private float m_yVelocity;
@@ -25,6 +26,8 @@ public class playerControllerScript : MonoBehaviour {
 
     RagnarThrow throwScript;
 
+    public Animator myAnim;
+
     //rewired
     public int playerId = 0;
     private Player player; // The Rewired Player
@@ -34,6 +37,7 @@ public class playerControllerScript : MonoBehaviour {
     {
         player = ReInput.players.GetPlayer(playerId);//Initializes the ReWired inputs
         m_rb = GetComponent<Rigidbody2D>();
+        myAnim = GetComponent<Animator>();
     }
 
     void Start()
@@ -55,12 +59,18 @@ public class playerControllerScript : MonoBehaviour {
             if (player.GetAxis("LHorizontal") > 0)
             {
                 transform.position += transform.right * m_moveSpeed * Time.deltaTime;
-                transform.localScale = new Vector3(-0.6f, transform.localScale.y, transform.localScale.z);
+                if(!m_facingRight)
+                {
+                    Flip();
+                }
             }           
             if (player.GetAxis("LHorizontal") < 0)
             {
                 transform.position += transform.right * -m_moveSpeed * Time.deltaTime;
-                transform.localScale = new Vector3(0.6f, transform.localScale.y, transform.localScale.z);
+                if(m_facingRight)
+                {
+                    Flip();
+                }
             }
             if (player.GetButtonDown("AButton") && GroundCheck()) //performs ground check, if player is withing range of ground they can jump
             {
@@ -72,13 +82,19 @@ public class playerControllerScript : MonoBehaviour {
             if (player.GetAxis("LHorizontal") > 0 && throwScript.m_isGrabbing)
             {
                 transform.position += transform.right * (m_moveSpeed * 0.5f) * Time.deltaTime;
-                transform.localScale = new Vector3(-0.6f, transform.localScale.y, transform.localScale.z);
+                if (!m_facingRight)
+                {
+                    Flip();
+                }
             }
 
             if (player.GetAxis("LHorizontal") < 0 && throwScript.m_isGrabbing)
             {
                 transform.position += transform.right * (-m_moveSpeed * 0.5f) * Time.deltaTime;
-                transform.localScale = new Vector3(0.6f, transform.localScale.y, transform.localScale.z);
+                if (m_facingRight)
+                {
+                    Flip();
+                }
             }
         }
         if (m_throwMode && throwScript.m_isGrabbing)
@@ -92,6 +108,13 @@ public class playerControllerScript : MonoBehaviour {
                 transform.position += transform.right * (-m_moveSpeed * 0.25f) * Time.deltaTime;
             }
         }
+    }
+    
+    void FixedUpdate()
+    {
+        myAnim.SetFloat("verticalSpeed", m_rb.velocity.y);
+        myAnim.SetBool("isGrounded", GroundCheck());
+        myAnim.SetFloat("speed", Mathf.Abs(player.GetAxis("LHorizontal")));
     } 
 
     void Jump()
@@ -106,6 +129,14 @@ public class playerControllerScript : MonoBehaviour {
     bool GroundCheck()
     {
         return Physics2D.Raycast(transform.position, -transform.up, canJumpHeight); 
+    }
+
+    public void Flip()
+    {
+        m_facingRight = !m_facingRight;
+        Vector3 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;
     }
 
 }

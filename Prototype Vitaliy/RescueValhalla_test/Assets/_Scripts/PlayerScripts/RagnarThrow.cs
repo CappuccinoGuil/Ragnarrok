@@ -58,26 +58,42 @@ public class RagnarThrow : MonoBehaviour
         if (player.GetButtonDown("RTrigger") && !m_isGrabbing)
         {
             print("grab");
-            hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.left * transform.localScale.x, grabDistance);
+            hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.right * transform.localScale.x, grabDistance);
             m_rbHit = hit.rigidbody;
 
             if (hit && (hit.collider.CompareTag("WoodenObject") || hit.collider.CompareTag("PhysicsObject") || hit.collider.CompareTag("Dwane")))
             {
+                ragnar.myAnim.SetBool("pickUp", true);
+
                 print("found");
                 m_isGrabbing = true;
+                hit.collider.enabled = false;
             }
 
         }
         else if (player.GetButtonDown("RTrigger") && m_isGrabbing && !m_isThereAnAimer)
         {
-            m_yVelocity = m_yVelocity * 0.1f;
-            m_xVelocity = m_xVelocity * 0.1f;
+            if (ragnar.m_facingRight)
+            {
+                m_yVelocity = 2.5f;
+                m_xVelocity = 2.5f;
+            }
+            if (!ragnar.m_facingRight)
+            {
+                m_yVelocity = 2.5f;
+                m_xVelocity = 2.5f * -1;
+            }
+
             m_isThrowing = true;
+            ragnar.myAnim.SetTrigger("isThrowing");
         }
         else if (player.GetButtonDown("RTrigger") && m_isThereAnAimer)
         {
             m_cancelThrow = true;
             holdPoint.transform.rotation = m_tempHoldRotation;
+
+            ragnar.myAnim.SetBool("isCharging", false);
+            ragnar.myAnim.SetBool("pickUp", true);
 
             Destroy(createdAim[0]);
             createdAim.Clear();
@@ -87,6 +103,7 @@ public class RagnarThrow : MonoBehaviour
             m_isThereAnAimer = false;
 
         }
+
         if ((player.GetAxisRawTimeInactive("RHorizontal") > 0.1f || player.GetAxisRawTimeInactive("RVertical") > 0.1f))
         {
             m_cancelThrow = false;
@@ -96,11 +113,17 @@ public class RagnarThrow : MonoBehaviour
         {
             if (player.GetAxis("RHorizontal") > 0)
             {
-                transform.localScale = new Vector3(0.6f, transform.localScale.y, transform.localScale.z);
+                if (ragnar.m_facingRight)
+                {
+                    ragnar.Flip();
+                }
             }
             if (player.GetAxis("RHorizontal") < 0)
             {
-                transform.localScale = new Vector3(-0.6f, transform.localScale.y, transform.localScale.z);
+                if (!ragnar.m_facingRight)
+                {
+                    ragnar.Flip();
+                }
             }
             if ((player.GetAxisRaw("RHorizontal") != 0 || player.GetAxisRaw("RVertical") != 0) && m_isGrabbing)
             {
@@ -115,6 +138,8 @@ public class RagnarThrow : MonoBehaviour
             {
                 m_isThrowing = true;
                 holdPoint.transform.rotation = m_tempHoldRotation;
+
+                ragnar.myAnim.SetTrigger("isThrowing");
 
                 Destroy(createdAim[0]);
                 createdAim.Clear();
@@ -132,6 +157,8 @@ public class RagnarThrow : MonoBehaviour
 
         if (m_createAimer)
         {
+            ragnar.myAnim.SetBool("pickUp", false);
+            ragnar.myAnim.SetBool("isCharging", true);
             CreateAimer();
             m_isThereAnAimer = true;
             m_createAimer = false;
@@ -144,10 +171,15 @@ public class RagnarThrow : MonoBehaviour
         {
             RotateAimer();
             HandleThrow();
+            
         }
         if (m_isThrowing)
         {
+            ragnar.myAnim.SetBool("pickUp", false);
+            ragnar.myAnim.SetBool("isCharging", false);
+
             m_rbHit.velocity = new Vector2(m_xVelocity, m_yVelocity);
+            hit.collider.enabled = true;
             m_isThrowing = false;
             m_isGrabbing = false;
         }
