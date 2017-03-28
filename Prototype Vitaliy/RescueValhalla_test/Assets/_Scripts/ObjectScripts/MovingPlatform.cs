@@ -16,6 +16,10 @@ public class MovingPlatform : MonoBehaviour {
 	//Array of points
 	public Transform[] points;
 
+	//Booleans
+	bool leverOn;
+
+
 
 
 	void Start()
@@ -57,6 +61,23 @@ public class MovingPlatform : MonoBehaviour {
 
 
 
+
+
+
+
+	//Lever function
+	void OnTriggerEnter(Collider other)
+	{
+		//Turn on lever
+		leverOn = true;
+
+		if (other.gameObject.tag == "Player") {
+			
+			//Activate platform to move here or switch to activate a door...
+		
+		
+		}
+	}
 
 
 }
