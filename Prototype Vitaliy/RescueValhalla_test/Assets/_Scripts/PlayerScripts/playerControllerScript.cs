@@ -9,8 +9,8 @@ public class playerControllerScript : MonoBehaviour {
     [SerializeField] float jumpHeight = 1.5f;
     [SerializeField] float canJumpHeight = 1.4f;
 
-    public bool m_throwMode = false;
-    public bool m_facingRight = true;
+    [HideInInspector] public bool m_throwMode = false;
+    [HideInInspector] public bool m_facingRight = true;
 
     private float m_moveSpeed;
     private float m_yVelocity;
@@ -19,14 +19,14 @@ public class playerControllerScript : MonoBehaviour {
 
     private RaycastHit2D hit;
     private Quaternion m_tempHoldRotation;
-    public List<GameObject> createdAim;
+    [HideInInspector] public List<GameObject> createdAim;
 
     Rigidbody2D m_rb;
     Rigidbody2D m_rbHit;
 
     RagnarThrow throwScript;
 
-    public Animator myAnim;
+    [HideInInspector] public Animator myAnim;
 
     //rewired
     public int playerId = 0;
