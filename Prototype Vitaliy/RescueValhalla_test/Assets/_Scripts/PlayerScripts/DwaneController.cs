@@ -28,7 +28,7 @@ public class DwaneController: MonoBehaviour {
     public Vector2 test;
 
     //rewired
-    public int playerId = 0;
+    public int playerId = 1;
     private Player player; // The Rewired Player
 
     void Awake ()
@@ -38,7 +38,6 @@ public class DwaneController: MonoBehaviour {
 
     void Start ()
     {
-        player = ReInput.players.GetPlayer(playerId); //Initializes the ReWired inputs
         m_rb = GetComponent<Rigidbody2D>();
         m_circleCollider = GetComponent<CircleCollider2D>();
         CalculateForce(m_finalVelocity, m_timeToSetVelocity);
