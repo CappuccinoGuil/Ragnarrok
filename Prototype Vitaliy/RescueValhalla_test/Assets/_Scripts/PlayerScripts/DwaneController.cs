@@ -20,12 +20,10 @@ public class DwaneController: MonoBehaviour {
     private float m_pushForce;
     private float m_angleOfForce = -180.0f;
 
-    public bool m_horizontalMovement = true;
+    [HideInInspector] public bool m_horizontalMovement = true;
 
     private Rigidbody2D m_rb;
     private CircleCollider2D m_circleCollider;
-
-    public Vector2 test;
 
     //rewired
     public int playerId = 1;
@@ -151,7 +149,6 @@ public class DwaneController: MonoBehaviour {
             {
                 m_pullForce = CalculateMagForce(m_finalRoundedPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
                 Vector2 dist = m_magDist.normalized;
-                test = dist;
                 if (dist.y > 0)
                 {
                     m_rb.AddForce((dist) * m_pullForce, ForceMode2D.Force);

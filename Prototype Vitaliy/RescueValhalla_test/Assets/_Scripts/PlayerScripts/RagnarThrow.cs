@@ -6,14 +6,13 @@ using Rewired;
 
 public class RagnarThrow : MonoBehaviour
 {
-
-    [SerializeField] float m_grabDistance = 1f;
     [SerializeField] Transform m_holdPoint;
     [SerializeField] Transform m_heldPoint;
     [SerializeField] GameObject m_pointer;
-    [SerializeField] float m_throwDistance = 1.0f;
+    [SerializeField] float m_grabDistance = 1f;
+    [SerializeField] float m_minThrowVelocity = 2.2f;
+    [SerializeField] float m_maxThrowDistance = 5f;
     [SerializeField] float m_rateOfThrowDistIncrease = 2.0f;
-    [SerializeField] float m_pickUpCoolDown = 2.0f;
 
     [HideInInspector] public bool m_isGrabbing = false;
     [HideInInspector] public bool m_animHoldingObject = false;
@@ -24,8 +23,10 @@ public class RagnarThrow : MonoBehaviour
     private bool m_isThereAnAimer = false;
     private bool m_putDown = false;
     private bool m_cancelThrow = false;
-    private bool m_startCoolDown = false; 
+    private bool m_startCoolDown = false;
 
+    private float m_pickUpCoolDown = 1.0f;
+    private float m_ThrowDistance = 1.0f;
     private float m_yVelocity;
     private float m_xVelocity;
     private float m_tempThrowDist;
@@ -42,19 +43,16 @@ public class RagnarThrow : MonoBehaviour
     private playerControllerScript m_ragnar;
 
     //rewired
-    public int playerId = 0;
+    private int playerId;
     private Player m_player; // The Rewired Player
 
 
     void Awake()
     {
-        m_player = ReInput.players.GetPlayer(playerId);//Initializes the ReWired inputs
-        m_tempThrowDist = m_throwDistance;
-    }
-
-    void Start()
-    {
         m_ragnar = gameObject.GetComponent<playerControllerScript>();
+        playerId = m_ragnar.playerId;
+        m_player = ReInput.players.GetPlayer(playerId);//Initializes the ReWired inputs
+        m_tempThrowDist = m_ThrowDistance;
     }
 
     // Update is called once per frame
@@ -95,13 +93,13 @@ public class RagnarThrow : MonoBehaviour
         {
             if (m_ragnar.m_facingRight)
             {
-                m_yVelocity = 2.5f;
-                m_xVelocity = 2.5f;
+                m_yVelocity = m_minThrowVelocity + (m_minThrowVelocity * 0.4f);
+                m_xVelocity = m_minThrowVelocity;
             }
             if (!m_ragnar.m_facingRight)
             {
-                m_yVelocity = 2.5f;
-                m_xVelocity = 2.5f * -1;
+                m_yVelocity = m_minThrowVelocity + (m_minThrowVelocity * 0.4f);
+                m_xVelocity = m_minThrowVelocity * - 1;
             }
 
             m_isThrowing = true;
@@ -118,7 +116,7 @@ public class RagnarThrow : MonoBehaviour
             Destroy(createdAim[0]);
             createdAim.Clear();
             m_ragnar.m_throwMode = false;
-            m_tempThrowDist = m_throwDistance;
+            m_tempThrowDist = m_ThrowDistance;
 
             m_isThereAnAimer = false;
 
@@ -148,6 +146,7 @@ public class RagnarThrow : MonoBehaviour
             if ((m_player.GetAxisRaw("RHorizontal") != 0 || m_player.GetAxisRaw("RVertical") != 0) && m_isGrabbing)
             {
                 m_tempThrowDist += Time.deltaTime * m_rateOfThrowDistIncrease;
+                m_tempThrowDist = Mathf.Clamp(m_tempThrowDist, 0f, m_maxThrowDistance);
             }
             if ((m_player.GetAxisRaw("RHorizontal") != 0.0f || m_player.GetAxisRaw("RVertical") != 0.0f) && (m_isGrabbing && !m_isThereAnAimer))
             {
@@ -164,7 +163,7 @@ public class RagnarThrow : MonoBehaviour
                 Destroy(createdAim[0]);
                 createdAim.Clear();
                 m_ragnar.m_throwMode = false;
-                m_tempThrowDist = m_throwDistance;
+                m_tempThrowDist = m_ThrowDistance;
 
                 m_isThereAnAimer = false;
             }
@@ -196,10 +195,6 @@ public class RagnarThrow : MonoBehaviour
 
     void FixedUpdate()
     {
-
-
-
-
         if (m_ragnar.m_throwMode && m_isThereAnAimer)
         {
             RotateAimer();

@@ -9,7 +9,9 @@ public class RagnarSteamBlast : MonoBehaviour {
 
     private Rigidbody2D m_rb;
 
-    public int playerId = 0;
+    private playerControllerScript m_ragnar;
+
+    private int playerId;
     private Player player; // The Rewired Player
 
     float CalculateLaunchForce(float Fvelocity, float time, float dist)
@@ -21,6 +23,8 @@ public class RagnarSteamBlast : MonoBehaviour {
 
     void Awake()
     {
+        m_ragnar = gameObject.GetComponent<playerControllerScript>();
+        playerId = m_ragnar.playerId;
         player = ReInput.players.GetPlayer(playerId); //Initializes the ReWired inputs  
     }
 
