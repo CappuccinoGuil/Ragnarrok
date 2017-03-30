@@ -187,7 +187,6 @@ public class RagnarThrow : MonoBehaviour
 
         if (m_createAimer)
         {
-            m_ragnar.myAnim.SetBool("pickUp", false);
             m_ragnar.myAnim.SetBool("isCharging", true);
             CreateAimer();
             m_isThereAnAimer = true;
@@ -209,7 +208,6 @@ public class RagnarThrow : MonoBehaviour
         }
         if (m_isThrowing)
         {
-            //m_ragnar.myAnim.SetBool("pickUp", false);
             m_ragnar.myAnim.SetBool("isCharging", false);
 
             m_rbHit.velocity = new Vector2(m_xVelocity, m_yVelocity);
