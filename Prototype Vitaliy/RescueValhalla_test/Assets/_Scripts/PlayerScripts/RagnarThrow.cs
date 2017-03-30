@@ -13,21 +13,24 @@ public class RagnarThrow : MonoBehaviour
     [SerializeField] GameObject m_pointer;
     [SerializeField] float m_throwDistance = 1.0f;
     [SerializeField] float m_rateOfThrowDistIncrease = 2.0f;
+    [SerializeField] float m_pickUpCoolDown = 2.0f;
 
     [HideInInspector] public bool m_isGrabbing = false;
-    [SerializeField] public bool m_animHoldingObject = false;
-    [SerializeField] public bool m_animNotHoldingObject = false;
+    [HideInInspector] public bool m_animHoldingObject = false;
+    [HideInInspector] public bool m_animNotHoldingObject = false;
 
     private bool m_isThrowing = false;
     private bool m_createAimer = false;
     private bool m_isThereAnAimer = false;
     private bool m_putDown = false;
     private bool m_cancelThrow = false;
+    private bool m_startCoolDown = false; 
 
     private float m_yVelocity;
     private float m_xVelocity;
     private float m_tempThrowDist;
     private float m_axisActiveTime;
+    private float m_tempPickUpCoolDown = 0;
 
     private RaycastHit2D m_hit;
     private Quaternion m_tempHoldRotation;
@@ -57,8 +60,19 @@ public class RagnarThrow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(m_startCoolDown)
+        {
+            m_tempPickUpCoolDown -= Time.deltaTime;
+            Mathf.Clamp(m_tempPickUpCoolDown, 0, 10);
+            if(m_tempPickUpCoolDown <= 0)
+            {
+                m_tempPickUpCoolDown = 0;
+                m_startCoolDown = false;
+            }
+        }
 
-        if (m_player.GetButtonDown("RTrigger") && !m_isGrabbing)
+
+        if (m_player.GetButtonDown("RTrigger") && !m_isGrabbing && m_tempPickUpCoolDown == 0)
         {
             print("grab");
             m_hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.right * transform.localScale.x, m_grabDistance);
@@ -66,7 +80,9 @@ public class RagnarThrow : MonoBehaviour
 
             if (m_hit && (m_hit.collider.CompareTag("WoodenObject") || m_hit.collider.CompareTag("PhysicsObject") || m_hit.collider.CompareTag("Dwane")))
             {
-                m_ragnar.myAnim.SetBool("pickUp", true);
+                m_tempPickUpCoolDown = m_pickUpCoolDown;
+                m_startCoolDown = true;
+                m_ragnar.myAnim.SetTrigger("startPickUp");
 
                 print("found");
                 m_isGrabbing = true;
@@ -97,7 +113,7 @@ public class RagnarThrow : MonoBehaviour
             m_heldPoint.transform.rotation = m_tempHoldRotation;
 
             m_ragnar.myAnim.SetBool("isCharging", false);
-            m_ragnar.myAnim.SetBool("pickUp", true);
+            m_ragnar.myAnim.SetBool("cancelThrow", true);
 
             Destroy(createdAim[0]);
             createdAim.Clear();
@@ -193,7 +209,7 @@ public class RagnarThrow : MonoBehaviour
         }
         if (m_isThrowing)
         {
-            m_ragnar.myAnim.SetBool("pickUp", false);
+            //m_ragnar.myAnim.SetBool("pickUp", false);
             m_ragnar.myAnim.SetBool("isCharging", false);
 
             m_rbHit.velocity = new Vector2(m_xVelocity, m_yVelocity);
