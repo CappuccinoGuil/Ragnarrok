@@ -5,25 +5,27 @@ using UnityEngine.UI;
 
 public class UIBar : MonoBehaviour {
 
+
+
+    [SerializeField] float lerpSpeed;
+
+    [SerializeField] Image content;
+    [SerializeField] Image content2;
+    [SerializeField] Image content3;
+
+    [SerializeField] Text valueText;
+
+    [SerializeField] Color fullColour;
+
+    [SerializeField] Color lowColour;
+
+    [SerializeField] bool lerpColours;
+
+    public bool m_fillFirstBar = false;
+    public bool m_fillSecondBar = false;
+    public bool m_fillThirdBar = false;
+
     private float fillAmount;
-
-    [SerializeField]
-    private float lerpSpeed;
-
-    [SerializeField]
-    private Image content;
-
-    [SerializeField]
-    private Text valueText;
-
-    [SerializeField]
-    private Color fullColour;
-
-    [SerializeField]
-    private Color lowColour;
-
-    [SerializeField]
-    private bool lerpColours;
 
     public float fillMax { get; set; }
 
@@ -52,13 +54,38 @@ public class UIBar : MonoBehaviour {
 
     private void HandleBar()
     {
-        if (fillAmount != content.fillAmount)
+        if (m_fillFirstBar)
         {
-            content.fillAmount = Mathf.Lerp(content.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
+            if (fillAmount != content.fillAmount)
+            {
+                content.fillAmount = Mathf.Lerp(content.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
+            }
+            if (lerpColours)
+            {
+                content.color = Color.Lerp(lowColour, fullColour, fillAmount);
+            }
         }
-        if(lerpColours)
+        if (m_fillSecondBar)
         {
-            content.color = Color.Lerp(lowColour, fullColour, fillAmount);
+            if (fillAmount != content2.fillAmount)
+            {
+                content2.fillAmount = Mathf.Lerp(content2.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
+            }
+            if (lerpColours)
+            {
+                content2.color = Color.Lerp(lowColour, fullColour, fillAmount);
+            }
+        }
+        if (m_fillThirdBar)
+        {
+            if (fillAmount != content3.fillAmount)
+            {
+                content3.fillAmount = Mathf.Lerp(content3.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
+            }
+            if (lerpColours)
+            {
+                content3.color = Color.Lerp(lowColour, fullColour, fillAmount);
+            }
         }
 
     }

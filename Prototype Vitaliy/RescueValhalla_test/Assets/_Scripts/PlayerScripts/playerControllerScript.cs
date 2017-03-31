@@ -10,6 +10,7 @@ public class playerControllerScript : MonoBehaviour {
     [SerializeField] float canJumpHeight = 1.4f;
 
     [HideInInspector] public bool m_throwMode = false;
+ public bool m_blastMode = false;
     [HideInInspector] public bool m_facingRight = true;
 
     private float m_moveSpeed;
@@ -48,7 +49,7 @@ public class playerControllerScript : MonoBehaviour {
     void Update()
 
     {
-        if (!m_throwMode && !throwScript.m_isGrabbing)
+        if (!m_throwMode && !throwScript.m_isGrabbing && !m_blastMode)
         {
             if (player.GetButton("XButton"))
             {
@@ -77,7 +78,7 @@ public class playerControllerScript : MonoBehaviour {
                 Jump();
             }
         }
-        if(throwScript.m_isGrabbing && !m_throwMode)
+        if(throwScript.m_isGrabbing && !m_throwMode && !m_blastMode)
         {
             if (player.GetAxis("LHorizontal") > 0 && throwScript.m_isGrabbing)
             {
@@ -97,7 +98,7 @@ public class playerControllerScript : MonoBehaviour {
                 }
             }
         }
-        if (m_throwMode && throwScript.m_isGrabbing)
+        if (m_throwMode && throwScript.m_isGrabbing && !m_blastMode)
         {
             if (player.GetAxis("LHorizontal") > 0)
             {
@@ -106,6 +107,17 @@ public class playerControllerScript : MonoBehaviour {
             if (player.GetAxis("LHorizontal") < 0)
             {
                 transform.position += transform.right * (-m_moveSpeed * 0.25f) * Time.deltaTime;
+            }
+        }
+        if (m_blastMode)
+        {
+            if (player.GetAxis("LHorizontal") > 0)
+            {
+                transform.position += transform.right * (m_moveSpeed) * Time.deltaTime;
+            }
+            if (player.GetAxis("LHorizontal") < 0)
+            {
+                transform.position += transform.right * (-m_moveSpeed) * Time.deltaTime;
             }
         }
     }
@@ -126,7 +138,7 @@ public class playerControllerScript : MonoBehaviour {
         m_rb.AddForce(Vector2.up * force, ForceMode2D.Impulse);
     }
 
-    bool GroundCheck()
+    public bool GroundCheck()
     {
         return Physics2D.Raycast(transform.position, -transform.up, canJumpHeight); 
     }

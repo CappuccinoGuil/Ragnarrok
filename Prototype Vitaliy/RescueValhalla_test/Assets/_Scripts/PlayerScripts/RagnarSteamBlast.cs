@@ -5,40 +5,135 @@ using UnityEngine;
 
 public class RagnarSteamBlast : MonoBehaviour {
 
-    private float m_launchForce;
+    [HideInInspector] public List<GameObject> createdAim;
+
+    [SerializeField] Transform m_aimPoint;
+    [SerializeField] GameObject m_pointer;
+    [SerializeField] float m_launchDistance = 5f;
+
+    public float m_launchForce;
+    private float m_finalVelocity;
+    private float m_acceleration;
+    private float m_tarAngle;
+
+    private bool m_createAimer = false;
+    private bool m_isThereAnAimer = false;
+    private bool m_launch = false;
+
+    private Vector3 m_launchDirection;
 
     private Rigidbody2D m_rb;
 
+    private RagnarThrow m_throwScript;
     private playerControllerScript m_ragnar;
 
     private int playerId;
-    private Player player; // The Rewired Player
+    private Player m_player; // The Rewired Player
 
-    float CalculateLaunchForce(float Fvelocity, float time, float dist)
+    float CalculateFinalVelocity(float dist, float time, float initVelocity)
     {
-        float acceleration = Fvelocity - 0 / time;
-        float force = m_rb.mass * acceleration;
-        return force = force / dist;
+        return (dist / time) - initVelocity / 2;
+    }
+    float CalculateAcceleration(float finalVelocity, float initVelocity, float time)
+    {
+        return (finalVelocity - initVelocity) / time;
+    }
+    float CalculateLaunchForce(float mass ,float acceleration)
+    {
+        return mass * acceleration;
+    }
+
+    void ApplyForce(float angle)
+    {
+        Collider2D[] inRange = Physics2D.OverlapBoxAll(m_aimPoint.position, new Vector2(3, 3), angle);
+        foreach (Collider2D item in inRange)
+        {
+            if (item.GetComponent<Rigidbody2D>() && item.CompareTag("WoodenObject"))
+            {
+                item.attachedRigidbody.AddForce(m_launchDirection * -m_launchForce, ForceMode2D.Impulse);
+            }
+            if (m_ragnar.GroundCheck())
+            {
+                m_rb.AddForce(m_launchDirection * m_launchForce, ForceMode2D.Impulse);
+            }
+            if (!m_ragnar.GroundCheck())
+            {
+                m_rb.AddForce(m_launchDirection * (m_launchForce * 1.5f), ForceMode2D.Impulse);
+            }
+
+        }
+    }
+
+    void RotateAimer()
+    {
+        float horz = m_player.GetAxisRaw("RHorizontal");
+        float vert = m_player.GetAxisRaw("RVertical");
+        m_tarAngle = Mathf.Atan2(vert, horz) * Mathf.Rad2Deg;
+
+        createdAim[0].transform.rotation = Quaternion.Euler(0, 0, m_tarAngle + 90);
+        createdAim[0].transform.position = m_aimPoint.position + transform.forward * -0.5f;
+    }
+
+    void CreateAimer()
+    {
+        GameObject createdAimer;
+        createdAimer = Instantiate(m_pointer, m_aimPoint.position + transform.forward * -0.5f, m_aimPoint.rotation);
+        createdAim.Add(createdAimer);
     }
 
     void Awake()
     {
         m_ragnar = gameObject.GetComponent<playerControllerScript>();
         playerId = m_ragnar.playerId;
-        player = ReInput.players.GetPlayer(playerId); //Initializes the ReWired inputs  
+        m_player = ReInput.players.GetPlayer(playerId); //Initializes the ReWired inputs  
     }
 
     void Start ()
     {
         m_rb = GetComponent<Rigidbody2D>();
+        m_throwScript = GetComponent<RagnarThrow>();
 	}
 	
 	void Update ()
     {
-	    if(player.GetButtonDown("BButton"))
+        if ((m_player.GetAxisRaw("RHorizontal") != 0.0f || m_player.GetAxisRaw("RVertical") != 0.0f) && (!m_throwScript.m_isGrabbing && !m_isThereAnAimer))
         {
-            m_launchForce = CalculateLaunchForce(25f, 1f, 3f);
-            m_rb.AddForce(transform.up * m_launchForce, ForceMode2D.Impulse);
-        }	
-	}
+            m_finalVelocity = CalculateFinalVelocity(m_launchDistance, 1, 0);
+            m_acceleration = CalculateAcceleration(m_finalVelocity, 0, 1);
+            m_launchForce = CalculateLaunchForce(m_rb.mass, m_acceleration);
+            m_ragnar.m_blastMode = true;
+            m_createAimer = true;
+        }
+        else if ((m_player.GetAxisRaw("RHorizontal") == 0 && m_player.GetAxisRaw("RVertical") == 0) && m_isThereAnAimer)
+        {
+            Destroy(createdAim[0]);
+            createdAim.Clear();
+
+            m_launch = true;
+            m_ragnar.m_blastMode = false;
+            m_isThereAnAimer = false;
+        }
+        if (m_createAimer)
+        {
+            CreateAimer();
+            m_isThereAnAimer = true;
+            m_createAimer = false;
+        }
+      
+    }
+
+    void FixedUpdate()
+    {
+        if (m_isThereAnAimer)
+        {
+            RotateAimer();
+            m_launchDirection = createdAim[0].transform.rotation * Vector3.down;
+        }
+        if(m_launch)
+        {
+            ApplyForce(m_tarAngle);
+            //m_rb.AddForce(m_launchDirection * m_launchForce, ForceMode2D.Impulse);
+            m_launch = false;
+        }
+    }
 }

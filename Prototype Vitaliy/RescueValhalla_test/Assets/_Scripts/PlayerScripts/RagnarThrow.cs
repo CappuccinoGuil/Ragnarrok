@@ -22,7 +22,7 @@ public class RagnarThrow : MonoBehaviour
     private bool m_createAimer = false;
     private bool m_isThereAnAimer = false;
     private bool m_putDown = false;
-    private bool m_cancelThrow = false;
+    public bool m_cancelThrow = false;
     private bool m_startCoolDown = false;
 
     private float m_pickUpCoolDown = 1.0f;
@@ -34,7 +34,7 @@ public class RagnarThrow : MonoBehaviour
     private float m_tempPickUpCoolDown = 0;
 
     private RaycastHit2D m_hit;
-    private Quaternion m_tempHoldRotation;
+    //private Quaternion m_tempHoldRotation;
 
     [HideInInspector] public List<GameObject> createdAim;
 
@@ -108,7 +108,7 @@ public class RagnarThrow : MonoBehaviour
         else if (m_player.GetButtonDown("RTrigger") && m_isThereAnAimer)
         {
             m_cancelThrow = true;
-            m_heldPoint.transform.rotation = m_tempHoldRotation;
+           // m_heldPoint.transform.rotation = m_tempHoldRotation;
 
             m_ragnar.myAnim.SetBool("isCharging", false);
             m_ragnar.myAnim.SetBool("cancelThrow", true);
@@ -156,7 +156,7 @@ public class RagnarThrow : MonoBehaviour
             else if ((m_player.GetAxisRaw("RHorizontal") == 0 && m_player.GetAxisRaw("RVertical") == 0) && m_isThereAnAimer)
             {
                 m_isThrowing = true;
-                m_holdPoint.transform.rotation = m_tempHoldRotation;
+               // m_holdPoint.transform.rotation = m_tempHoldRotation;
 
                 m_ragnar.myAnim.SetTrigger("isThrowing");
 
