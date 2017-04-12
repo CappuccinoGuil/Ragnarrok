@@ -22,7 +22,7 @@ public class RagnarThrow : MonoBehaviour
     private bool m_createAimer = false;
     private bool m_isThereAnAimer = false;
     private bool m_putDown = false;
-    public bool m_cancelThrow = false;
+    private bool m_cancelThrow = false;
     private bool m_startCoolDown = false;
 
     private float m_pickUpCoolDown = 1.0f;
@@ -34,7 +34,6 @@ public class RagnarThrow : MonoBehaviour
     private float m_tempPickUpCoolDown = 0;
 
     private RaycastHit2D m_hit;
-    //private Quaternion m_tempHoldRotation;
 
     [HideInInspector] public List<GameObject> createdAim;
 
@@ -55,7 +54,6 @@ public class RagnarThrow : MonoBehaviour
         m_tempThrowDist = m_ThrowDistance;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if(m_startCoolDown)
@@ -69,7 +67,7 @@ public class RagnarThrow : MonoBehaviour
             }
         }
 
-
+        //Pick up the object.
         if (m_player.GetButtonDown("RTrigger") && !m_isGrabbing && m_tempPickUpCoolDown == 0)
         {
             print("grab");
@@ -89,6 +87,7 @@ public class RagnarThrow : MonoBehaviour
             }
 
         }
+        //Put down the object.
         else if (m_player.GetButtonDown("RTrigger") && m_isGrabbing && !m_isThereAnAimer)
         {
             if (m_ragnar.m_facingRight)
@@ -105,10 +104,10 @@ public class RagnarThrow : MonoBehaviour
             m_isThrowing = true;
             m_ragnar.myAnim.SetTrigger("isThrowing");
         }
+        //Cancel the throw.
         else if (m_player.GetButtonDown("RTrigger") && m_isThereAnAimer)
         {
             m_cancelThrow = true;
-           // m_heldPoint.transform.rotation = m_tempHoldRotation;
 
             m_ragnar.myAnim.SetBool("isCharging", false);
             m_ragnar.myAnim.SetBool("cancelThrow", true);
@@ -121,7 +120,7 @@ public class RagnarThrow : MonoBehaviour
             m_isThereAnAimer = false;
 
         }
-
+        //Set cancel throw to false when joy stick has been inactive for a moment.
         if ((m_player.GetAxisRawTimeInactive("RHorizontal") > 0.1f || m_player.GetAxisRawTimeInactive("RVertical") > 0.1f))
         {
             m_cancelThrow = false;
@@ -129,6 +128,7 @@ public class RagnarThrow : MonoBehaviour
 
         if (!m_cancelThrow)
         {
+            //Flip Ragnar around.
             if (m_player.GetAxis("RHorizontal") > 0)
             {
                 if (m_ragnar.m_facingRight)
@@ -143,20 +143,22 @@ public class RagnarThrow : MonoBehaviour
                     m_ragnar.Flip();
                 }
             }
+            //Increase throw power while holding Right joy stick.
             if ((m_player.GetAxisRaw("RHorizontal") != 0 || m_player.GetAxisRaw("RVertical") != 0) && m_isGrabbing)
             {
                 m_tempThrowDist += Time.deltaTime * m_rateOfThrowDistIncrease;
                 m_tempThrowDist = Mathf.Clamp(m_tempThrowDist, 0f, m_maxThrowDistance);
             }
+            //Set create aimer if Right joy stick is held and there is no aimer.
             if ((m_player.GetAxisRaw("RHorizontal") != 0.0f || m_player.GetAxisRaw("RVertical") != 0.0f) && (m_isGrabbing && !m_isThereAnAimer))
             {
                 m_ragnar.m_throwMode = true;
                 m_createAimer = true;
             }
+            //Launch the object if player releases the Right joy stick.
             else if ((m_player.GetAxisRaw("RHorizontal") == 0 && m_player.GetAxisRaw("RVertical") == 0) && m_isThereAnAimer)
             {
                 m_isThrowing = true;
-               // m_holdPoint.transform.rotation = m_tempHoldRotation;
 
                 m_ragnar.myAnim.SetTrigger("isThrowing");
 
@@ -169,6 +171,7 @@ public class RagnarThrow : MonoBehaviour
             }
         }
 
+        //Switching the position of the held object based on animation state.
         if (m_isGrabbing)
         {
             if (m_animNotHoldingObject)
@@ -183,7 +186,7 @@ public class RagnarThrow : MonoBehaviour
         }
         
 
-
+        //Create the aimer.
         if (m_createAimer)
         {
             m_ragnar.myAnim.SetBool("isCharging", true);

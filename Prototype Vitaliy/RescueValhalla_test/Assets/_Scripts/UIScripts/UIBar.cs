@@ -10,8 +10,6 @@ public class UIBar : MonoBehaviour {
     [SerializeField] float lerpSpeed;
 
     [SerializeField] Image content;
-    [SerializeField] Image content2;
-    [SerializeField] Image content3;
 
     [SerializeField] Text valueText;
 
@@ -20,10 +18,6 @@ public class UIBar : MonoBehaviour {
     [SerializeField] Color lowColour;
 
     [SerializeField] bool lerpColours;
-
-    public bool m_fillFirstBar = false;
-    public bool m_fillSecondBar = false;
-    public bool m_fillThirdBar = false;
 
     private float fillAmount;
 
@@ -41,7 +35,8 @@ public class UIBar : MonoBehaviour {
 
 	void Start ()
     {
-		if(lerpColours)
+
+        if (lerpColours)
         {
             content.color = fullColour;
         }
@@ -54,8 +49,7 @@ public class UIBar : MonoBehaviour {
 
     private void HandleBar()
     {
-        if (m_fillFirstBar)
-        {
+
             if (fillAmount != content.fillAmount)
             {
                 content.fillAmount = Mathf.Lerp(content.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
@@ -64,31 +58,10 @@ public class UIBar : MonoBehaviour {
             {
                 content.color = Color.Lerp(lowColour, fullColour, fillAmount);
             }
-        }
-        if (m_fillSecondBar)
-        {
-            if (fillAmount != content2.fillAmount)
-            {
-                content2.fillAmount = Mathf.Lerp(content2.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
-            }
-            if (lerpColours)
-            {
-                content2.color = Color.Lerp(lowColour, fullColour, fillAmount);
-            }
-        }
-        if (m_fillThirdBar)
-        {
-            if (fillAmount != content3.fillAmount)
-            {
-                content3.fillAmount = Mathf.Lerp(content3.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
-            }
-            if (lerpColours)
-            {
-                content3.color = Color.Lerp(lowColour, fullColour, fillAmount);
-            }
-        }
 
     }
+
+
 
     private float Map(float value, float inMin, float inMax, float outMin, float outMax)
     {

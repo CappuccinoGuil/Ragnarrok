@@ -10,18 +10,25 @@ public class UIRagnar : MonoBehaviour {
     private bool addSteam = false;
     private bool subSteam = false;
 
-    public bool m_oneThirdFull;
-public bool m_twoThirdsFull;
- public bool m_threeThirdsFull;
+    [SerializeField] float steamRate = 10f;
 
+    private bool m_oneThirdFull;
+    private bool m_twoThirdsFull;
+    private bool m_threeThirdsFull;
+
+    [HideInInspector] public bool m_steamPickedUp;
+
+    RagnarSteamBlast steamBlast;
 
     private void Awake()
     {
         steam.Initialize();
+        steamBlast = GetComponent<RagnarSteamBlast>();
     }
 
     void Update()
     {
+        
         if (steam.CurrentVal >= (steam.MaxVal * 0.33f) && steam.CurrentVal < (steam.MaxVal * 0.66f))
         {
             m_oneThirdFull = true;
@@ -51,12 +58,35 @@ public bool m_twoThirdsFull;
 
         if (addSteam)
         {
-            steam.CurrentVal += 10 * Time.deltaTime;
+            steam.CurrentVal += steamRate * Time.deltaTime;
         }
         if (subSteam)
         {
-            steam.CurrentVal -= 10 * Time.deltaTime;
+            steam.CurrentVal -= steamRate * Time.deltaTime;
         }
+        if(m_steamPickedUp)
+        {
+            steam.CurrentVal += 33.35f;
+            m_steamPickedUp = false;
+        }
+
+        if(m_oneThirdFull)
+        {
+            steamBlast.m_launchDistance = 2f;
+        } else { steamBlast.m_launchDistance = 0f; }
+        if (m_twoThirdsFull)
+        {
+            steamBlast.m_launchDistance = 4f;
+        }
+        if (m_threeThirdsFull)
+        {
+            steamBlast.m_launchDistance = 5f;
+        }
+        if(steamBlast.m_launch)
+        {
+            steam.CurrentVal = 0f;
+        }
+
     }
 
     void OnTriggerEnter2D(Collider2D col)

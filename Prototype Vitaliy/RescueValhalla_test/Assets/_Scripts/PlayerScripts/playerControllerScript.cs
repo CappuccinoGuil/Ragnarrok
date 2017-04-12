@@ -8,9 +8,11 @@ public class playerControllerScript : MonoBehaviour {
     [SerializeField] float baseSpeed = 3f;
     [SerializeField] float jumpHeight = 1.5f;
     [SerializeField] float canJumpHeight = 1.4f;
+    [SerializeField] float m_fallMultiplier = 2.5f;
+    [SerializeField] float m_lowJumpMultiplier = 2.0f;
 
     [HideInInspector] public bool m_throwMode = false;
- public bool m_blastMode = false;
+    [HideInInspector] public bool m_blastMode = false;
     [HideInInspector] public bool m_facingRight = true;
 
     private float m_moveSpeed;
@@ -127,7 +129,16 @@ public class playerControllerScript : MonoBehaviour {
         myAnim.SetFloat("verticalSpeed", m_rb.velocity.y);
         myAnim.SetBool("isGrounded", GroundCheck());
         myAnim.SetFloat("speed", Mathf.Abs(player.GetAxis("LHorizontal")));
-    } 
+
+        if (m_rb.velocity.y < 0)
+        {
+            m_rb.velocity += Vector2.up * Physics2D.gravity.y * (m_fallMultiplier - 1) * Time.deltaTime;
+        }
+        else if (m_rb.velocity.y > 0 && !player.GetButton("AButton"))
+        {
+            m_rb.velocity += Vector2.up * Physics2D.gravity.y * (m_lowJumpMultiplier - 1) * Time.deltaTime;
+        }
+    }
 
     void Jump()
     {
