@@ -151,7 +151,9 @@ public class playerControllerScript : MonoBehaviour {
 
     public bool GroundCheck()
     {
-        return Physics2D.Raycast(transform.position, -transform.up, canJumpHeight); 
+        return (Physics2D.Raycast(new Vector3(transform.position.x - 1, transform.position.y, transform.position.z), -transform.up, canJumpHeight)) || 
+            (Physics2D.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z), -transform.up, canJumpHeight)) ||
+            (Physics2D.Raycast(new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), -transform.up, canJumpHeight));
     }
 
     public void Flip()
