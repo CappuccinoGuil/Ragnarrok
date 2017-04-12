@@ -9,16 +9,19 @@ public class RagnarSteamBlast : MonoBehaviour {
 
     [SerializeField] Transform m_aimPoint;
     [SerializeField] GameObject m_pointer;
-    [SerializeField] float m_launchDistance = 5f;
 
-    public float m_launchForce;
+    [HideInInspector] public float m_launchDistance = 1f;
+
+    [HideInInspector] public bool m_launch = false;
+
+    private float m_launchForce;
     private float m_finalVelocity;
     private float m_acceleration;
     private float m_tarAngle;
 
     private bool m_createAimer = false;
     private bool m_isThereAnAimer = false;
-    private bool m_launch = false;
+    private bool m_cancelBlast = false;
 
     private Vector3 m_launchDirection;
 
@@ -96,22 +99,41 @@ public class RagnarSteamBlast : MonoBehaviour {
 	
 	void Update ()
     {
-        if ((m_player.GetAxisRaw("RHorizontal") != 0.0f || m_player.GetAxisRaw("RVertical") != 0.0f) && (!m_throwScript.m_isGrabbing && !m_isThereAnAimer))
+        if (!m_cancelBlast)
         {
-            m_finalVelocity = CalculateFinalVelocity(m_launchDistance, 1, 0);
-            m_acceleration = CalculateAcceleration(m_finalVelocity, 0, 1);
-            m_launchForce = CalculateLaunchForce(m_rb.mass, m_acceleration);
-            m_ragnar.m_blastMode = true;
-            m_createAimer = true;
+            //Start aiming steam blast.
+            if ((m_player.GetAxisRaw("RHorizontal") != 0.0f || m_player.GetAxisRaw("RVertical") != 0.0f) && (!m_throwScript.m_isGrabbing && !m_isThereAnAimer))
+            {
+                m_finalVelocity = CalculateFinalVelocity(m_launchDistance, 1, 0);
+                m_acceleration = CalculateAcceleration(m_finalVelocity, 0, 1);
+                m_launchForce = CalculateLaunchForce(m_rb.mass, m_acceleration);
+                m_ragnar.m_blastMode = true;
+                m_createAimer = true;
+            }
+            //Shoot steam blast.
+            else if ((m_player.GetAxisRaw("RHorizontal") == 0 && m_player.GetAxisRaw("RVertical") == 0) && m_isThereAnAimer)
+            {
+                Destroy(createdAim[0]);
+                createdAim.Clear();
+
+                m_launch = true;
+                m_ragnar.m_blastMode = false;
+                m_isThereAnAimer = false;
+            }
         }
-        else if ((m_player.GetAxisRaw("RHorizontal") == 0 && m_player.GetAxisRaw("RVertical") == 0) && m_isThereAnAimer)
+        //Cancel Steam blast.
+        if(m_player.GetButtonDown("RTrigger") && m_isThereAnAimer)
         {
+            m_cancelBlast = true;
             Destroy(createdAim[0]);
             createdAim.Clear();
-
-            m_launch = true;
             m_ragnar.m_blastMode = false;
             m_isThereAnAimer = false;
+        }
+        //Set cancel throw to false when joy stick has been inactive for a moment.
+        if ((m_player.GetAxisRawTimeInactive("RHorizontal") > 0.1f || m_player.GetAxisRawTimeInactive("RVertical") > 0.1f))
+        {
+            m_cancelBlast = false;
         }
         if (m_createAimer)
         {
@@ -132,7 +154,6 @@ public class RagnarSteamBlast : MonoBehaviour {
         if(m_launch)
         {
             ApplyForce(m_tarAngle);
-            //m_rb.AddForce(m_launchDirection * m_launchForce, ForceMode2D.Impulse);
             m_launch = false;
         }
     }
