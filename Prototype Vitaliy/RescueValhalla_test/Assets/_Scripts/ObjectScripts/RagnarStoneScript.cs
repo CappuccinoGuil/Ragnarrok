@@ -78,8 +78,8 @@ public class RagnarStoneScript : MonoBehaviour {
 		{
 			Vector2 m_magDist = item.transform.position - transform.position;
 
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
-			{
+			if (item.GetComponent<Rigidbody2D>() && (item.CompareTag("Interactive") || item.CompareTag("Ragnar")))
+            {
 				m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
 				item.attachedRigidbody.AddForce((m_magDist).normalized * -m_pullForce, ForceMode2D.Force); // messy but if the detected collider has a rigidbody and is tagged as interactive a pull force is applied
 				m_rb.AddForce((m_magDist).normalized * m_pullForce , ForceMode2D.Force);
@@ -138,8 +138,8 @@ public class RagnarStoneScript : MonoBehaviour {
 		{
 			Vector2 m_magDist = item.transform.position - transform.position;
 
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
-			{
+			if (item.GetComponent<Rigidbody2D>() && (item.CompareTag("Interactive") || item.CompareTag("Ragnar")))
+            {
 				m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.magnitude);
 				item.attachedRigidbody.AddForce((m_magDist).normalized * m_pushForce, ForceMode2D.Impulse); // messy but if the detected collider has a rigidbody and is tagged as interactive a push force is applied
 				m_rb.AddForce((m_magDist).normalized * -m_pushForce, ForceMode2D.Impulse);
