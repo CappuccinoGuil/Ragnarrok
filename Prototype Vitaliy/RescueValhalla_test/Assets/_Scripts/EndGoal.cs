@@ -16,7 +16,7 @@ public class EndGoal : MonoBehaviour {
 
     void OnTriggerStay2D(Collider2D other)
     {       
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Ragnar"))
         {
             ragnarReady = true;
         }
@@ -29,7 +29,7 @@ public class EndGoal : MonoBehaviour {
         
     void OnTriggerExit2D (Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Ragnar"))
         {
             ragnarReady = false;
         }
