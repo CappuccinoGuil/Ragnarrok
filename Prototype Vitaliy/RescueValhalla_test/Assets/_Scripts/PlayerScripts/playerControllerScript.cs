@@ -46,6 +46,23 @@ public class playerControllerScript : MonoBehaviour {
     void Start()
     {
         throwScript = gameObject.GetComponent<RagnarThrow>();
+        m_moveSpeed = baseSpeed;
+    }
+
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        if(col.gameObject.tag == "Platform")
+        {
+            gameObject.transform.SetParent(col.transform);
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D col)
+    {
+        if (col.gameObject.tag == "Platform")
+        {
+            col.transform.DetachChildren();
+        }
     }
 
     void Update()
@@ -53,11 +70,6 @@ public class playerControllerScript : MonoBehaviour {
     {
         if (!m_throwMode && !throwScript.m_isGrabbing && !m_blastMode)
         {
-            if (player.GetButton("XButton"))
-            {
-                m_moveSpeed = baseSpeed * 2;
-            }
-            else { m_moveSpeed = baseSpeed; }
 
             if (player.GetAxis("LHorizontal") > 0)
             {

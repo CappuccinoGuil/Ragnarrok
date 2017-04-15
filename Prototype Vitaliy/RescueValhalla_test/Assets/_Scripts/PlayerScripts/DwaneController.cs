@@ -120,13 +120,21 @@ public class DwaneController: MonoBehaviour {
 
         Collider2D[] inRange = Physics2D.OverlapCircleAll(transform.position, m_effectRadius);
         foreach (Collider2D item in inRange)
-        {           
-
+        {
+            
             m_pullForce = Mathf.Clamp(m_pullForce, m_minPullPushForce, m_maxPullPushForce);
 
-            Vector2 m_magDist = item.transform.position - transform.position;
+            //Collider2D closestCollider = item;
+            //if (Vector2.Distance(item.transform.position, transform.position) < Vector2.Distance(closestCollider.transform.position,transform.position))
+            //{
+            //    closestCollider = item;
+            //}
 
-            if (item.GetComponent<Rigidbody2D>() && (item.CompareTag("Interactive") || item.CompareTag("Ragnar")))
+                Vector2 m_magDist = item.transform.position - transform.position;
+
+
+
+                if (item.GetComponent<Rigidbody2D>() && (item.CompareTag("Interactive") || item.CompareTag("Ragnar")))
             {
                 m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
                 item.attachedRigidbody.AddForce((m_magDist).normalized * -m_pullForce, ForceMode2D.Force); // messy but if the detected collider has a rigidbody and is tagged as interactive a pull force is applied
