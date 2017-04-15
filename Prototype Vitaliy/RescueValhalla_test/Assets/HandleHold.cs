@@ -9,29 +9,20 @@ public class HandleHold : StateMachineBehaviour {
     //
     //}
 
-    [SerializeField] float m_timer = 0.26f;
-    private float timer;
+    [SerializeField] float m_timer = 0.3f;
 
     RagnarThrow throwController;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        timer = m_timer;
-
         throwController = animator.GetComponent<RagnarThrow>();
         animator.SetBool("pickUp", true);
+        throwController.m_pickUpTimer = m_timer;
+        throwController.m_startPickUpSwitchTimer = true;
         
     }
 
-    // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-    public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        timer -= Time.deltaTime;
-        if(timer <= 0)
-        {
-            throwController.m_animHoldingObject = true;
-        }
-    }
+
 
 
 

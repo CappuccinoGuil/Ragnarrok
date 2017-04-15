@@ -10,6 +10,8 @@ public class RagnarSteamBlast : MonoBehaviour {
     [SerializeField] Transform m_aimPoint;
     [SerializeField] GameObject m_pointer;
 
+    [SerializeField] float m_SteamSpurtDistance = 1f; 
+
     [HideInInspector] public float m_launchDistance = 1f;
 
     [HideInInspector] public bool m_launch = false;
@@ -21,7 +23,10 @@ public class RagnarSteamBlast : MonoBehaviour {
 
     private bool m_createAimer = false;
     private bool m_isThereAnAimer = false;
+    private bool m_steamBlast = false;
     private bool m_cancelBlast = false;
+
+    private bool m_steamSpurt = false;
 
     private Vector3 m_launchDirection;
 
@@ -45,26 +50,59 @@ public class RagnarSteamBlast : MonoBehaviour {
     {
         return mass * acceleration;
     }
+    void HandleSteamSpurt()
+    {
+
+
+        if (m_ragnar.m_facingRight)
+        {
+            float finalVelocity = CalculateFinalVelocity(m_SteamSpurtDistance, 0.8f, m_rb.velocity.x);
+            float acceleration = CalculateAcceleration(finalVelocity, m_rb.velocity.x, 0.8f);
+            float spurtForce = CalculateLaunchForce(m_rb.mass, acceleration);
+
+            float finalVelocityUp = CalculateFinalVelocity(1f, 0.8f, m_rb.velocity.y);
+            float accelerationUp = CalculateAcceleration(finalVelocityUp, m_rb.velocity.y, 0.8f);
+            float spurtForceUp = CalculateLaunchForce(m_rb.mass, accelerationUp);
+
+            m_rb.AddForce(transform.up * spurtForceUp, ForceMode2D.Impulse);
+            m_rb.AddForce(transform.right * spurtForce, ForceMode2D.Impulse);
+        }
+        if (!m_ragnar.m_facingRight)
+        {
+            float finalVelocity = CalculateFinalVelocity(m_SteamSpurtDistance, 0.8f, -m_rb.velocity.x);
+            float acceleration = CalculateAcceleration(finalVelocity, -m_rb.velocity.x, 0.8f);
+            float spurtForce = CalculateLaunchForce(m_rb.mass, acceleration);
+
+            float finalVelocityUp = CalculateFinalVelocity(1f, 0.8f, m_rb.velocity.y);
+            float accelerationUp = CalculateAcceleration(finalVelocityUp, m_rb.velocity.y, 0.8f);
+            float spurtForceUp = CalculateLaunchForce(m_rb.mass, accelerationUp);
+
+            m_rb.AddForce(transform.up * spurtForceUp, ForceMode2D.Impulse);
+            m_rb.AddForce(transform.right * -spurtForce, ForceMode2D.Impulse);
+        }
+    }
+
+    void HandleSteamBlast()
+    {
+            m_finalVelocity = CalculateFinalVelocity(m_launchDistance, 0.8f, m_rb.velocity.y);
+            m_acceleration = CalculateAcceleration(m_finalVelocity, m_rb.velocity.y, 0.8f);
+            m_launchForce = CalculateLaunchForce(m_rb.mass, m_acceleration);
+    }
 
     void ApplyForce(float angle)
     {
         Collider2D[] inRange = Physics2D.OverlapBoxAll(m_aimPoint.position, new Vector2(3, 3), angle);
+
         foreach (Collider2D item in inRange)
         {
             if (item.GetComponent<Rigidbody2D>() && item.CompareTag("WoodenObject"))
             {
                 item.attachedRigidbody.AddForce(m_launchDirection * -m_launchForce, ForceMode2D.Impulse);
             }
-            if (m_ragnar.GroundCheck())
-            {
-                m_rb.AddForce(m_launchDirection * m_launchForce, ForceMode2D.Impulse);
-            }
-            if (!m_ragnar.GroundCheck())
-            {
-                m_rb.AddForce(m_launchDirection * (m_launchForce * 1.5f), ForceMode2D.Impulse);
-            }
 
         }
+        m_rb.AddForce(m_launchDirection * m_launchForce, ForceMode2D.Impulse);
+
     }
 
     void RotateAimer()
@@ -99,14 +137,19 @@ public class RagnarSteamBlast : MonoBehaviour {
 	
 	void Update ()
     {
+
+        if (m_player.GetButtonDown("XButton") && !m_throwScript.m_isGrabbing)
+        {
+            m_steamSpurt = true;
+        }
+
+
         if (!m_cancelBlast)
         {
             //Start aiming steam blast.
             if ((m_player.GetAxisRaw("RHorizontal") != 0.0f || m_player.GetAxisRaw("RVertical") != 0.0f) && (!m_throwScript.m_isGrabbing && !m_isThereAnAimer))
             {
-                m_finalVelocity = CalculateFinalVelocity(m_launchDistance, 1, 0);
-                m_acceleration = CalculateAcceleration(m_finalVelocity, 0, 1);
-                m_launchForce = CalculateLaunchForce(m_rb.mass, m_acceleration);
+                m_steamBlast = true;
                 m_ragnar.m_blastMode = true;
                 m_createAimer = true;
             }
@@ -149,12 +192,23 @@ public class RagnarSteamBlast : MonoBehaviour {
         if (m_isThereAnAimer)
         {
             RotateAimer();
-            m_launchDirection = createdAim[0].transform.rotation * Vector3.down;
+            //m_launchDirection = createdAim[0].transform.rotation * Vector3.down;
+            m_launchDirection = Quaternion.AngleAxis(m_tarAngle, Vector3.forward) * Vector3.right;
+        }
+        if(m_steamBlast)
+        {
+            HandleSteamBlast();
         }
         if(m_launch)
         {
             ApplyForce(m_tarAngle);
+            m_steamBlast = false;
             m_launch = false;
+        }
+        if (m_steamSpurt)
+        {
+            HandleSteamSpurt();
+            m_steamSpurt = false;
         }
     }
 }
