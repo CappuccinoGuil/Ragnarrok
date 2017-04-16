@@ -8,10 +8,16 @@ public class UIRagnar : MonoBehaviour {
     private Stat steam;
 
     [SerializeField]
-    float steamRate = 10f;
+    float steamRate = 25f;
 
-    [HideInInspector] public bool m_steamLaunched = false;
+    [Header("Steam Blast Launch Distances")]
+    [SerializeField] private float m_oneThirdFullDistance = 4f;
+    [SerializeField] private float m_twoThirdsFullDistance = 6f;
+    [SerializeField] private float m_threeThirdsFullDistance = 8f;
 
+
+    [HideInInspector] public bool m_steamBlastLaunched = false;
+    [HideInInspector] public bool m_steamSpurtLaunched = false;
 
     private bool addSteam = false;
     private bool subSteam = false;
@@ -21,17 +27,16 @@ public class UIRagnar : MonoBehaviour {
 
     [HideInInspector] public bool m_steamPickedUp;
 
-    RagnarSteamBlast steamBlast;
+    RagnarSteamBlast m_steamBlast;
 
     private void Awake()
     {
         steam.Initialize();
-        steamBlast = GetComponent<RagnarSteamBlast>();
+        m_steamBlast = GetComponent<RagnarSteamBlast>();
     }
 
     void Update()
-    {
-        
+    {        
         if (steam.CurrentVal >= (steam.MaxVal * 0.33f) && steam.CurrentVal < (steam.MaxVal * 0.66f))
         {
             m_oneThirdFull = true;
@@ -75,21 +80,39 @@ public class UIRagnar : MonoBehaviour {
 
         if(m_oneThirdFull)
         {
-            steamBlast.m_launchDistance = 4f;
-        } else { steamBlast.m_launchDistance = 0f; }
+            m_steamBlast.m_launchDistance = m_oneThirdFullDistance;
+            m_steamBlast.m_switchEffectSteamBlast = 1;
+        }
+        else
+        {
+            m_steamBlast.m_launchDistance = 0f;
+            m_steamBlast.m_switchEffectSteamBlast = 0;
+        }
         if (m_twoThirdsFull)
         {
-            steamBlast.m_launchDistance = 6f;
+            m_steamBlast.m_launchDistance = m_twoThirdsFullDistance;
+            m_steamBlast.m_switchEffectSteamBlast = 2;
         }
         if (m_threeThirdsFull)
         {
-            steamBlast.m_launchDistance = 8f;
+            m_steamBlast.m_launchDistance = m_threeThirdsFullDistance;
+            m_steamBlast.m_switchEffectSteamBlast = 3;
         }
-        if(m_steamLaunched)
+        if (m_steamBlastLaunched && steam.CurrentVal >= (steam.MaxVal * 0.33f))
         {
             steam.CurrentVal = 0f;
-            m_steamLaunched = false;
+            m_steamBlastLaunched = false;
         }
+        else { m_steamBlastLaunched = false; }
+        if(m_steamSpurtLaunched && steam.CurrentVal >= steam.MaxVal * 0.165f)
+        {
+            steam.CurrentVal -= steam.MaxVal * 0.165f;
+            m_steamBlast.m_canSpurt = true;
+            m_steamSpurtLaunched = false;
+        } else if(m_steamSpurtLaunched && steam.CurrentVal < steam.MaxVal * 0.165f) {
+            m_steamBlast.m_canSpurt = false;
+            m_steamSpurtLaunched = false; }
+
 
     }
 
