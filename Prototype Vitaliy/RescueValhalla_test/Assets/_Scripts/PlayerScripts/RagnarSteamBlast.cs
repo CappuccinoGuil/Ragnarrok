@@ -34,6 +34,7 @@ public class RagnarSteamBlast : MonoBehaviour {
 
     private RagnarThrow m_throwScript;
     private playerControllerScript m_ragnar;
+    private UIRagnar m_ragUI;
 
     private int playerId;
     private Player m_player; // The Rewired Player
@@ -133,6 +134,7 @@ public class RagnarSteamBlast : MonoBehaviour {
     {
         m_rb = GetComponent<Rigidbody2D>();
         m_throwScript = GetComponent<RagnarThrow>();
+        m_ragUI = GetComponent<UIRagnar>();
 	}
 	
 	void Update ()
@@ -202,6 +204,7 @@ public class RagnarSteamBlast : MonoBehaviour {
         if(m_launch)
         {
             ApplyForce(m_tarAngle);
+            m_ragUI.m_steamLaunched = true;
             m_steamBlast = false;
             m_launch = false;
         }

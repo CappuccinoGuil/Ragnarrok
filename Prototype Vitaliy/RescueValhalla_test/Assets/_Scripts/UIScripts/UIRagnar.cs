@@ -7,11 +7,14 @@ public class UIRagnar : MonoBehaviour {
     [SerializeField]
     private Stat steam;
 
+    [SerializeField]
+    float steamRate = 10f;
+
+    [HideInInspector] public bool m_steamLaunched = false;
+
+
     private bool addSteam = false;
     private bool subSteam = false;
-
-    [SerializeField] float steamRate = 10f;
-
     private bool m_oneThirdFull;
     private bool m_twoThirdsFull;
     private bool m_threeThirdsFull;
@@ -72,19 +75,20 @@ public class UIRagnar : MonoBehaviour {
 
         if(m_oneThirdFull)
         {
-            steamBlast.m_launchDistance = 2f;
+            steamBlast.m_launchDistance = 4f;
         } else { steamBlast.m_launchDistance = 0f; }
         if (m_twoThirdsFull)
         {
-            steamBlast.m_launchDistance = 4f;
+            steamBlast.m_launchDistance = 6f;
         }
         if (m_threeThirdsFull)
         {
-            steamBlast.m_launchDistance = 5f;
+            steamBlast.m_launchDistance = 8f;
         }
-        if(steamBlast.m_launch)
+        if(m_steamLaunched)
         {
             steam.CurrentVal = 0f;
+            m_steamLaunched = false;
         }
 
     }
