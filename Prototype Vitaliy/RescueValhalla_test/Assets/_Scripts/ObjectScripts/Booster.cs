@@ -26,6 +26,9 @@ public class Booster : MonoBehaviour {
 	}
     void OnTriggerStay2D(Collider2D thingToBoost)
     {
-        thingToBoost.GetComponent<Rigidbody2D>().AddForce( direction * boostForce, ForceMode2D.Force);
+        if (thingToBoost.CompareTag("Ragnar") || thingToBoost.CompareTag("Interactive") || thingToBoost.CompareTag("Dwane") || thingToBoost.CompareTag("WoodenObject"))
+        {
+            thingToBoost.GetComponent<Rigidbody2D>().AddForce(direction * boostForce, ForceMode2D.Force);
+        }
     }
 }

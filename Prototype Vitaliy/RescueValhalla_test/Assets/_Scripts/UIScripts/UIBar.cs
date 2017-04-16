@@ -5,25 +5,21 @@ using UnityEngine.UI;
 
 public class UIBar : MonoBehaviour {
 
+
+
+    [SerializeField] float lerpSpeed;
+
+    [SerializeField] Image content;
+
+    [SerializeField] Text valueText;
+
+    [SerializeField] Color fullColour;
+
+    [SerializeField] Color lowColour;
+
+    [SerializeField] bool lerpColours;
+
     private float fillAmount;
-
-    [SerializeField]
-    private float lerpSpeed;
-
-    [SerializeField]
-    private Image content;
-
-    [SerializeField]
-    private Text valueText;
-
-    [SerializeField]
-    private Color fullColour;
-
-    [SerializeField]
-    private Color lowColour;
-
-    [SerializeField]
-    private bool lerpColours;
 
     public float fillMax { get; set; }
 
@@ -39,7 +35,8 @@ public class UIBar : MonoBehaviour {
 
 	void Start ()
     {
-		if(lerpColours)
+
+        if (lerpColours)
         {
             content.color = fullColour;
         }
@@ -52,16 +49,19 @@ public class UIBar : MonoBehaviour {
 
     private void HandleBar()
     {
-        if (fillAmount != content.fillAmount)
-        {
-            content.fillAmount = Mathf.Lerp(content.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
-        }
-        if(lerpColours)
-        {
-            content.color = Color.Lerp(lowColour, fullColour, fillAmount);
-        }
+
+            if (fillAmount != content.fillAmount)
+            {
+                content.fillAmount = Mathf.Lerp(content.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
+            }
+            if (lerpColours)
+            {
+                content.color = Color.Lerp(lowColour, fullColour, fillAmount);
+            }
 
     }
+
+
 
     private float Map(float value, float inMin, float inMax, float outMin, float outMax)
     {
