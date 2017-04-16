@@ -19,6 +19,8 @@ public class buttonOnCollisionScript : MonoBehaviour {
 		if ((coll.gameObject.tag == "WoodenObject"|| coll.gameObject.CompareTag("Dwane")) && movingPlatform !=null)
         {
             movingPlatform.GetComponent<MovingPlatform>().moveSpeed = 1.5f;
+			float mirrorScale = transform.localScale.x * -1f;
+			transform.localScale = new Vector3(mirrorScale, 1, 1);
         }
 			//Destroy(GameObject.FindGameObjectWithTag ("Door"));
 
