@@ -115,6 +115,8 @@ public class DwaneController: MonoBehaviour {
         m_sumOfTorque = inertia * angularAcceleration;
     }
 
+
+
     void PullEffect()
     {
 
