@@ -81,7 +81,7 @@ public class RagnarThrow : MonoBehaviour
             m_hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.right * transform.localScale.x, m_grabDistance);
             m_rbHit = m_hit.rigidbody;
 
-            if (m_hit && (m_hit.collider.CompareTag("WoodenObject") || m_hit.collider.CompareTag("PhysicsObject") || m_hit.collider.CompareTag("Dwane")))
+            if (m_hit && (m_hit.collider.CompareTag("WoodenObject") || m_hit.collider.CompareTag("PhysicsObject") || m_hit.collider.CompareTag("InteractiveBox") || m_hit.collider.CompareTag("Dwane")))
             {
                 m_tempPickUpCoolDown = m_pickUpCoolDown;
                 m_startCoolDown = true;
