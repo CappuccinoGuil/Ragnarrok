@@ -81,6 +81,10 @@ public class RagnarThrow : MonoBehaviour
             m_hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.right * transform.localScale.x, m_grabDistance);
             m_rbHit = m_hit.rigidbody;
 
+            if(m_hit && m_hit.collider.CompareTag("Dwane"))
+            {
+                m_hit.collider.GetComponent<DwaneController>().m_isBeingHeld = true;
+            }
             if (m_hit && (m_hit.collider.CompareTag("WoodenObject") || m_hit.collider.CompareTag("PhysicsObject") || m_hit.collider.CompareTag("InteractiveBox") || m_hit.collider.CompareTag("Dwane")))
             {
                 m_tempPickUpCoolDown = m_pickUpCoolDown;
@@ -221,6 +225,10 @@ public class RagnarThrow : MonoBehaviour
             m_isThrowing = false;
             m_animHoldingObject = false;
             m_isGrabbing = false;
+            if(m_hit.collider.CompareTag("Dwane"))
+            {
+                m_hit.collider.GetComponent<DwaneController>().m_isBeingHeld = false;
+            }
         }
     }
 

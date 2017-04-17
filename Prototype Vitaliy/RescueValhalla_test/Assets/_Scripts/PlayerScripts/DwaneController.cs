@@ -6,6 +6,7 @@ using UnityEngine;
 public class DwaneController: MonoBehaviour {
 
     [SerializeField] float m_finalVelocity = 9.0f; // In metres per second.
+    [SerializeField] float m_finalAirVelocity = 3.0f; // In metres per second.
     [SerializeField] float m_finalPullVelocity = 23.0f;
     [SerializeField] float m_finalRoundedPullVelocity = 55.0f;
     [SerializeField] float m_finalPushVelocity = 10.0f;
@@ -14,15 +15,21 @@ public class DwaneController: MonoBehaviour {
     [SerializeField] float m_timeToSetPushVelocity = 1.0f;
     [SerializeField] float m_effectRadius = 2;
 
+    [HideInInspector] public bool m_isBeingHeld = false;
+
     private float m_appliedForce;
+    private float m_appliedAirForce;
     private float m_sumOfTorque;
     private float m_pullForce;
     private float m_pushForce;
     private float m_angleOfForce = -180.0f;
     private float m_maxPullPushForce;
     private float m_minPullPushForce;
+    private float canJumpHeight = 1f;
 
-    [HideInInspector] public bool m_horizontalMovement = true;
+    public bool m_horizontalMovement = true;
+
+    private bool m_isGrounded = false;
 
     private Rigidbody2D m_rb;
     private CircleCollider2D m_circleCollider;
@@ -42,7 +49,8 @@ public class DwaneController: MonoBehaviour {
         m_rb = GetComponent<Rigidbody2D>();
         m_myAnim = GetComponent<Animator>();
         m_circleCollider = GetComponent<CircleCollider2D>();
-        CalculateForce(m_finalVelocity, m_timeToSetVelocity);
+        m_appliedForce = CalculateForce(m_finalVelocity, m_timeToSetVelocity);
+        m_appliedAirForce = CalculateForce(m_finalAirVelocity, 3f);
 
         m_maxPullPushForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, 0.8f);
         m_minPullPushForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, -0.8f);
@@ -58,38 +66,47 @@ public class DwaneController: MonoBehaviour {
 
     void FixedUpdate ()
     {
-        if (m_horizontalMovement)
-        {
+        m_rb.velocity = new Vector2(Mathf.Clamp(m_rb.velocity.x, -m_finalVelocity, m_finalVelocity), Mathf.Clamp(m_rb.velocity.y, -m_finalVelocity, m_finalVelocity));
+
             if (player.GetAxis("LHorizontal") != 0)
             {
                 HandleTorque();
                 m_rb.AddTorque(-m_sumOfTorque * player.GetAxis("LHorizontal"));
             }
-        }
-        if (!m_horizontalMovement)
-        {
-            if (player.GetAxis("LVertical") != 0)
-            {
-                HandleTorque();
-                m_rb.AddTorque(-m_sumOfTorque * player.GetAxis("LVertical"));
-            }
-        }
-        if (player.GetButton("AButton"))
+            HandleAirMovement();
+
+        if (player.GetButton("AButton") && !m_isBeingHeld)
         {
             PullEffect();
             m_myAnim.SetBool("Attract", true);
         }
 
-        if (player.GetButtonDown("BButton"))
+        if (player.GetButtonDown("BButton") && !m_isBeingHeld)
         {
             PushEffect();
             m_myAnim.SetTrigger("Repel");
         }
 
-        m_rb.velocity = new Vector2(Mathf.Clamp(m_rb.velocity.x, -m_finalVelocity, m_finalVelocity), Mathf.Clamp(m_rb.velocity.y, -m_finalVelocity, m_finalVelocity));
+        m_isGrounded = GroundCheck();
 
-        
 
+
+    }
+
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        if (col.gameObject.tag == "Platform")
+        {
+            gameObject.transform.SetParent(col.transform);
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D col)
+    {
+        if (col.gameObject.tag == "Platform")
+        {
+            col.transform.DetachChildren();
+        }
     }
 
     float CalculateMagForce(float Fvelocity, float time, float dist)
@@ -102,7 +119,7 @@ public class DwaneController: MonoBehaviour {
     float CalculateForce(float Fvelocity, float time)
     {
         float acceleration = 0 - Fvelocity / time;
-        return m_appliedForce = m_rb.mass * acceleration;
+        return  m_rb.mass * acceleration;
     }
 
 
@@ -113,6 +130,21 @@ public class DwaneController: MonoBehaviour {
         float angularAcceleration = (angle * m_appliedForce) / (m_rb.mass * m_circleCollider.radius);
 
         m_sumOfTorque = inertia * angularAcceleration;
+    }
+
+    void HandleAirMovement()
+    {
+        if(!m_isGrounded)
+        {
+            if(player.GetAxis("LHorizontal") < 0f)
+            {
+                m_rb.AddForce(Vector3.right * m_appliedAirForce, ForceMode2D.Force);
+            }
+            if (player.GetAxis("LHorizontal") > 0f)
+            {
+                m_rb.AddForce(Vector3.right * -m_appliedAirForce, ForceMode2D.Force);
+            }
+        }
     }
 
 
@@ -126,17 +158,9 @@ public class DwaneController: MonoBehaviour {
             
             m_pullForce = Mathf.Clamp(m_pullForce, m_minPullPushForce, m_maxPullPushForce);
 
-            //Collider2D closestCollider = item;
-            //if (Vector2.Distance(item.transform.position, transform.position) < Vector2.Distance(closestCollider.transform.position,transform.position))
-            //{
-            //    closestCollider = item;
-            //}
+            Vector2 m_magDist = item.transform.position - transform.position;
 
-                Vector2 m_magDist = item.transform.position - transform.position;
-
-
-
-                if (item.GetComponent<Rigidbody2D>() && (item.CompareTag("Interactive") ||item.CompareTag("InteractiveBox") || item.CompareTag("Ragnar")))
+            if (item.GetComponent<Rigidbody2D>() && (item.CompareTag("Interactive") ||item.CompareTag("InteractiveBox") || item.CompareTag("Ragnar")))
             {
                 m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
                 item.attachedRigidbody.AddForce((m_magDist).normalized * -m_pullForce, ForceMode2D.Force); // messy but if the detected collider has a rigidbody and is tagged as interactive a pull force is applied
@@ -239,6 +263,15 @@ public class DwaneController: MonoBehaviour {
             }
         }
     }
+
+
+    public bool GroundCheck()
+    {
+        return (Physics2D.Raycast(new Vector3(transform.position.x - 0.5f, transform.position.y, transform.position.z), Vector3.down, canJumpHeight)) ||
+            (Physics2D.Raycast(new Vector3(transform.position.x, transform.position.y, transform.position.z), Vector3.down, canJumpHeight)) ||
+            (Physics2D.Raycast(new Vector3(transform.position.x + 0.5f, transform.position.y, transform.position.z), Vector3.down, canJumpHeight));
+    }
+
     void OnDrawGizmos()
     {
 
