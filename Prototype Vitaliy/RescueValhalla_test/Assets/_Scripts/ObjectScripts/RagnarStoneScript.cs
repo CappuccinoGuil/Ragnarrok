@@ -78,55 +78,65 @@ public class RagnarStoneScript : MonoBehaviour {
 		{
 			Vector2 m_magDist = item.transform.position - transform.position;
 
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
+
+			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Ragnar"))
 			{
+//			if (item.GetComponent<Rigidbody2D>() && (item.CompareTag("Interactive") || item.CompareTag("Ragnar")))
+//            {
 				m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
 				item.attachedRigidbody.AddForce((m_magDist).normalized * -m_pullForce, ForceMode2D.Force); // messy but if the detected collider has a rigidbody and is tagged as interactive a pull force is applied
 				m_rb.AddForce((m_magDist).normalized * m_pullForce , ForceMode2D.Force);
 			}
 
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveVert"))
-			{
-				m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.x);
-				Vector2 dist = new Vector2(m_magDist.x, 0);
-				if (dist.x > 0)
-				{
-					m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
-				}
-				if (dist.x < 0)
-				{
-					m_rb.AddForce((dist).normalized * -m_pullForce, ForceMode2D.Force);
-				}
-			}
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveHorz"))
-			{
-				m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.y);
-				Vector2 dist = new Vector2(0, m_magDist.y);
-				if (dist.y > 0)
-				{
-					m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
-					m_angleOfForce = 180;
-				} else { m_angleOfForce = -180; }
-				if (dist.y < 0)
-				{
-					m_rb.AddForce((dist).normalized * -m_pullForce, ForceMode2D.Force);
-				}
-			}
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
-			{
-				m_pullForce = CalculateMagForce(m_finalRoundedPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
-				Vector2 dist = m_magDist.normalized;
-				if (dist.y > 0)
-				{
-					m_rb.AddForce((dist) * m_pullForce, ForceMode2D.Force);
-					m_angleOfForce = 180;
-				}
-				if (dist.y < 0)
-				{
-					m_rb.AddForce((dist) * m_pullForce, ForceMode2D.Force);
-					m_angleOfForce = -180;
-				}
-			}
+//			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
+//			{
+//				m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
+//				item.attachedRigidbody.AddForce((m_magDist).normalized * -m_pullForce, ForceMode2D.Force); // messy but if the detected collider has a rigidbody and is tagged as interactive a pull force is applied
+//				m_rb.AddForce((m_magDist).normalized * m_pullForce , ForceMode2D.Force);
+//			}
+//
+//			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveVert"))
+//			{
+//				m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.x);
+//				Vector2 dist = new Vector2(m_magDist.x, 0);
+//				if (dist.x > 0)
+//				{
+//					m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
+//				}
+//				if (dist.x < 0)
+//				{
+//					m_rb.AddForce((dist).normalized * -m_pullForce, ForceMode2D.Force);
+//				}
+//			}
+//			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveHorz"))
+//			{
+//				m_pullForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.y);
+//				Vector2 dist = new Vector2(0, m_magDist.y);
+//				if (dist.y > 0)
+//				{
+//					m_rb.AddForce((dist).normalized * m_pullForce, ForceMode2D.Force);
+//					m_angleOfForce = 180;
+//				} else { m_angleOfForce = -180; }
+//				if (dist.y < 0)
+//				{
+//					m_rb.AddForce((dist).normalized * -m_pullForce, ForceMode2D.Force);
+//				}
+//			}
+//			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
+//			{
+//				m_pullForce = CalculateMagForce(m_finalRoundedPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
+//				Vector2 dist = m_magDist.normalized;
+//				if (dist.y > 0)
+//				{
+//					m_rb.AddForce((dist) * m_pullForce, ForceMode2D.Force);
+//					m_angleOfForce = 180;
+//				}
+//				if (dist.y < 0)
+//				{
+//					m_rb.AddForce((dist) * m_pullForce, ForceMode2D.Force);
+//					m_angleOfForce = -180;
+//				}
+//			}
 		}
 	}
 
@@ -138,44 +148,54 @@ public class RagnarStoneScript : MonoBehaviour {
 		{
 			Vector2 m_magDist = item.transform.position - transform.position;
 
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
+
+			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Ragnar"))
 			{
+//			if (item.GetComponent<Rigidbody2D>() && (item.CompareTag("Interactive") || item.CompareTag("Ragnar")))
+//            {
 				m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.magnitude);
 				item.attachedRigidbody.AddForce((m_magDist).normalized * m_pushForce, ForceMode2D.Impulse); // messy but if the detected collider has a rigidbody and is tagged as interactive a push force is applied
 				m_rb.AddForce((m_magDist).normalized * -m_pushForce, ForceMode2D.Impulse);
 			}
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveVert"))
-			{
-				m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.x);
-				Vector2 dist = new Vector2(m_magDist.x, 0);
-				if (dist.x > 0)
-				{
-					m_rb.AddForce((dist).normalized * -m_pushForce, ForceMode2D.Impulse);
-				}
-				if (dist.x < 0)
-				{
-					m_rb.AddForce((dist).normalized * m_pushForce, ForceMode2D.Impulse);
-				}
-			}
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveHorz"))
-			{
-				m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.y);
-				Vector2 dist = new Vector2(0, m_magDist.y);
-				if (dist.y > 0)
-				{
-					m_rb.AddForce((dist).normalized * -m_pushForce, ForceMode2D.Impulse);
-				}
-				if (dist.y < 0)
-				{
-					m_rb.AddForce((dist).normalized * m_pushForce, ForceMode2D.Impulse);
-				}
-			}
-			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
-			{
-				m_pushForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
-				Vector2 dist = m_magDist.normalized;
-				m_rb.AddForce((dist) * -m_pushForce, ForceMode2D.Impulse);
-			}
+
+//			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("Interactive"))
+//			{
+//				m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.magnitude);
+//				item.attachedRigidbody.AddForce((m_magDist).normalized * m_pushForce, ForceMode2D.Impulse); // messy but if the detected collider has a rigidbody and is tagged as interactive a push force is applied
+//				m_rb.AddForce((m_magDist).normalized * -m_pushForce, ForceMode2D.Impulse);
+//			}
+//			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveVert"))
+//			{
+//				m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.x);
+//				Vector2 dist = new Vector2(m_magDist.x, 0);
+//				if (dist.x > 0)
+//				{
+//					m_rb.AddForce((dist).normalized * -m_pushForce, ForceMode2D.Impulse);
+//				}
+//				if (dist.x < 0)
+//				{
+//					m_rb.AddForce((dist).normalized * m_pushForce, ForceMode2D.Impulse);
+//				}
+//			}
+//			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractiveHorz"))
+//			{
+//				m_pushForce = CalculateMagForce(m_finalPushVelocity, m_timeToSetPushVelocity, m_magDist.y);
+//				Vector2 dist = new Vector2(0, m_magDist.y);
+//				if (dist.y > 0)
+//				{
+//					m_rb.AddForce((dist).normalized * -m_pushForce, ForceMode2D.Impulse);
+//				}
+//				if (dist.y < 0)
+//				{
+//					m_rb.AddForce((dist).normalized * m_pushForce, ForceMode2D.Impulse);
+//				}
+//			}
+//			if (item.GetComponent<Rigidbody2D>() && item.CompareTag("FixedInteractive"))
+//			{
+//				m_pushForce = CalculateMagForce(m_finalPullVelocity, m_timeToSetPullVelocity, m_magDist.magnitude);
+//				Vector2 dist = m_magDist.normalized;
+//				m_rb.AddForce((dist) * -m_pushForce, ForceMode2D.Impulse);
+//			}
 		}
 	}
 

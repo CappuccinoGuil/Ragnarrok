@@ -2,6 +2,9 @@
 using System.Collections;
 
 public class buttonOnCollisionScript : MonoBehaviour {
+    [Header("External Refrence")]
+    [SerializeField] GameObject movingPlatform;
+    [SerializeField] GameObject[] walls;
 
 	// Use this for initialization
 	void Start () {
@@ -14,8 +17,21 @@ public class buttonOnCollisionScript : MonoBehaviour {
 	}
 
 	void OnCollisionEnter2D(Collision2D coll) {
-		if (coll.gameObject.tag == "WoodenObject")
-			Destroy(GameObject.FindGameObjectWithTag ("Door"));
+		if ((coll.gameObject.tag == "WoodenObject"|| coll.gameObject.CompareTag("InteractiveBox") || coll.gameObject.CompareTag("Dwane")) && movingPlatform !=null)
+        {
 
+			float mirrorScale = transform.localScale.x * -1f;
+			transform.localScale = new Vector3(mirrorScale, transform.localScale.y, transform.localScale.z);
+
+            movingPlatform.GetComponent<MovingPlatform>().moveSpeed = 1.5f;
+            if (walls !=null) //turns on invisible walls so the player doesnt fall
+            {
+                foreach (GameObject wall in walls)
+                {
+                    wall.SetActive(true);
+                }
+            }
+        }
+			//Destroy(GameObject.FindGameObjectWithTag ("Door"));
 	}
 }

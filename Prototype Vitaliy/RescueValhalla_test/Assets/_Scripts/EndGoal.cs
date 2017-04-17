@@ -9,14 +9,16 @@ public class EndGoal : MonoBehaviour {
 
     [Header("Level Transitions")]
     [SerializeField] string nextLevel = "Level_01";
+    [SerializeField] float loadDelay= 5f;
 
     [Header("Object Interactions")]
     [SerializeField] GameObject movingPlatform;
+    [SerializeField] GameObject[] walls;
     
 
     void OnTriggerStay2D(Collider2D other)
     {       
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Ragnar"))
         {
             ragnarReady = true;
         }
@@ -29,7 +31,7 @@ public class EndGoal : MonoBehaviour {
         
     void OnTriggerExit2D (Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Ragnar"))
         {
             ragnarReady = false;
         }
@@ -53,6 +55,10 @@ public class EndGoal : MonoBehaviour {
     {   
         if (movingPlatform != null)
         {
+            foreach (GameObject wall in walls)
+            {
+                wall.SetActive(true);
+            }
             movingPlatform.GetComponent<MovingPlatform>().enabled = true;
         }
         StartCoroutine(LoadLevel(nextLevel));
@@ -60,7 +66,7 @@ public class EndGoal : MonoBehaviour {
 
     IEnumerator LoadLevel(string levelName)
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(loadDelay);
         GetComponent<SceneTransition>().NextLevelButton(nextLevel);
     }
 }

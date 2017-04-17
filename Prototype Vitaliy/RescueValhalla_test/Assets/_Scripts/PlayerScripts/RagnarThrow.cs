@@ -17,11 +17,13 @@ public class RagnarThrow : MonoBehaviour
     [HideInInspector] public bool m_isGrabbing = false;
     [HideInInspector] public bool m_animHoldingObject = false;
     [HideInInspector] public bool m_animNotHoldingObject = false;
+    [HideInInspector] public bool m_startPickUpSwitchTimer = false;
+
+    [HideInInspector] public float m_pickUpTimer = 0.3f;
 
     private bool m_isThrowing = false;
     private bool m_createAimer = false;
     private bool m_isThereAnAimer = false;
-    private bool m_putDown = false;
     private bool m_cancelThrow = false;
     private bool m_startCoolDown = false;
 
@@ -56,15 +58,20 @@ public class RagnarThrow : MonoBehaviour
 
     void Update()
     {
-        if(m_startCoolDown)
+        if (m_startCoolDown)
         {
             m_tempPickUpCoolDown -= Time.deltaTime;
             Mathf.Clamp(m_tempPickUpCoolDown, 0, 10);
-            if(m_tempPickUpCoolDown <= 0)
+            if (m_tempPickUpCoolDown <= 0)
             {
                 m_tempPickUpCoolDown = 0;
                 m_startCoolDown = false;
             }
+        }
+
+        if (m_startPickUpSwitchTimer)
+        {
+            PickUpTimer();
         }
 
         //Pick up the object.
@@ -74,7 +81,7 @@ public class RagnarThrow : MonoBehaviour
             m_hit = Physics2D.CircleCast(transform.position, 0.25f, Vector2.right * transform.localScale.x, m_grabDistance);
             m_rbHit = m_hit.rigidbody;
 
-            if (m_hit && (m_hit.collider.CompareTag("WoodenObject") || m_hit.collider.CompareTag("PhysicsObject") || m_hit.collider.CompareTag("Dwane")))
+            if (m_hit && (m_hit.collider.CompareTag("WoodenObject") || m_hit.collider.CompareTag("PhysicsObject") || m_hit.collider.CompareTag("InteractiveBox") || m_hit.collider.CompareTag("Dwane")))
             {
                 m_tempPickUpCoolDown = m_pickUpCoolDown;
                 m_startCoolDown = true;
@@ -177,6 +184,7 @@ public class RagnarThrow : MonoBehaviour
             if (m_animNotHoldingObject)
             {
                 m_hit.transform.position = m_holdPoint.position;
+                m_hit.rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
             }
             if (m_animHoldingObject)
             {
@@ -245,10 +253,21 @@ public class RagnarThrow : MonoBehaviour
         createdAim.Add(createdAimer);
     }
 
+    void PickUpTimer()
+    {
+        m_pickUpTimer -= Time.deltaTime;
+        if(m_pickUpTimer <= 0)
+        {
+            m_animHoldingObject = true;
+            m_startPickUpSwitchTimer = false;
+        }
+    }
+
     IEnumerator WaitToActivateCollision()
     {
         yield return new WaitForSecondsRealtime(0.05f);
         m_hit.collider.enabled = true;
+        m_hit.rigidbody.constraints = RigidbodyConstraints2D.None;
     }
 
 }
