@@ -17,7 +17,7 @@ public class buttonOnCollisionScript : MonoBehaviour {
 	}
 
 	void OnCollisionEnter2D(Collision2D coll) {
-		if ((coll.gameObject.tag == "WoodenObject"|| coll.gameObject.CompareTag("InteractiveBox") || coll.gameObject.CompareTag("Dwane")) && movingPlatform !=null)
+		if ((coll.gameObject.tag == "WoodenObject"|| coll.gameObject.CompareTag("InteractiveBox") || coll.gameObject.CompareTag("Dwane") || coll.gameObject.CompareTag("Ragnar")) && movingPlatform !=null)
         {
 
 			float mirrorScale = transform.localScale.x * -1f;
